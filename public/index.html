@@ -1,0 +1,2644 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>鉱脈の裏切り者：会話する坑道 v14</title>
+<style>
+:root{
+  --bg:#090706;--panel:#18120e;--panel2:#241a14;--line:#4c3828;
+  --gold:#e5b75c;--gold2:#ffe19a;--text:#f3eadc;--muted:#b7a48d;
+  --danger:#d75a50;--good:#6bb483;--blue:#67a0c8;--purple:#9c72c4;
+  --shadow:rgba(0,0,0,.48);--cell:76px;--gap:7px
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;color:var(--text);font-family:"Yu Gothic UI","Hiragino Kaku Gothic ProN",system-ui,sans-serif}
+body{
+  background:
+    radial-gradient(circle at 50% -20%,#4a3420 0,transparent 44%),
+    repeating-linear-gradient(117deg,rgba(255,255,255,.012) 0 2px,transparent 2px 7px),
+    linear-gradient(#120e0b,#070504);
+  overflow-x:hidden
+}
+button,input,select{font:inherit}
+button{color:inherit}
+.hidden{display:none!important}
+.app{width:min(1580px,100%);margin:auto;padding:12px}
+.topbar,.panel,.hand-panel{
+  border:1px solid #493526;border-radius:18px;
+  background:linear-gradient(180deg,rgba(41,30,22,.96),rgba(20,15,12,.98));
+  box-shadow:0 18px 50px var(--shadow),inset 0 1px rgba(255,255,255,.05)
+}
+.topbar{
+  padding:12px 14px;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;position:relative;overflow:hidden
+}
+.topbar:after{
+  content:"";position:absolute;inset:-100% -20%;pointer-events:none;
+  background:linear-gradient(105deg,transparent 42%,rgba(255,223,155,.05) 50%,transparent 58%);
+  animation:sheen 8s linear infinite
+}
+@keyframes sheen{to{transform:translateX(55%)}}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.crest{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:24px;
+  background:#130f0c;border:1px solid #6c5034;box-shadow:inset 0 0 16px #000}
+.brand h1{font-family:Georgia,"Yu Mincho",serif;font-size:clamp(18px,2.8vw,30px);letter-spacing:.1em;margin:0}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:11px}
+.hud{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.pill{border:1px solid #4e3a2a;background:#15100d;border-radius:999px;padding:7px 10px;font-size:12px;color:var(--muted)}
+.pill b{color:var(--text)}
+.game-shell{display:grid;grid-template-columns:210px minmax(0,1fr);gap:10px;margin-top:10px}
+.game-shell.portrait-right{grid-template-columns:minmax(0,1fr) 210px}
+.game-shell.portrait-right .character-panel{order:2}
+.game-shell.portrait-right .content-shell{order:1}
+.character-panel{padding:10px;position:relative;min-height:560px;overflow:hidden}
+.character-stage{
+  height:100%;min-height:520px;border-radius:14px;border:1px solid #433126;
+  background:
+    radial-gradient(circle at 50% 18%,rgba(229,183,92,.16),transparent 27%),
+    linear-gradient(180deg,#17110d,#0c0907);
+  position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center
+}
+.character-stage:after{content:"";position:absolute;left:8%;right:8%;bottom:7%;height:22px;border-radius:50%;background:#000;filter:blur(9px);opacity:.6}
+.character-image{max-width:100%;max-height:88%;position:relative;z-index:2;object-fit:contain;filter:drop-shadow(0 15px 11px #000)}
+.object-character{width:160px;height:330px;position:relative;z-index:2;display:grid;place-items:center;font-size:115px;
+  filter:drop-shadow(0 14px 10px #000);animation:breathe 3.6s ease-in-out infinite}
+@keyframes breathe{50%{transform:translateY(-5px) scale(1.018)}}
+.profession-aura{position:absolute;inset:10%;border-radius:50%;filter:blur(18px);opacity:.2;z-index:1}
+.character-caption{position:absolute;left:8px;right:8px;bottom:8px;z-index:4;padding:9px;border-radius:10px;
+  background:rgba(10,7,5,.82);border:1px solid #4d3827;text-align:center}
+.character-caption b{display:block;font-family:Georgia,"Yu Mincho",serif}
+.character-caption span{font-size:11px;color:var(--muted)}
+.content-shell{min-width:0}
+.main-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:10px}
+.board-panel{padding:10px;position:relative;overflow:hidden}
+.board-wrap{
+  min-height:575px;overflow:auto;border-radius:13px;position:relative;
+  background:
+    radial-gradient(circle at 48% 48%,rgba(146,98,50,.14),transparent 43%),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 5px),
+    #0d0a08
+}
+.board{
+  display:grid;gap:var(--gap);padding:14px;position:relative;
+  transition:filter .25s,transform .25s
+}
+.board.slot-spin{animation:slotShake .75s cubic-bezier(.2,.8,.3,1)}
+@keyframes slotShake{0%,100%{transform:none;filter:none}20%{transform:translateY(-8px);filter:blur(1px)}50%{transform:translateY(9px);filter:blur(2px)}75%{transform:translateY(-4px)}}
+.cell{
+  width:var(--cell);height:var(--cell);position:relative;display:grid;place-items:center;
+  border:1px dashed rgba(171,127,80,.18);border-radius:10px;transition:.14s
+}
+.cell.valid{cursor:pointer;border-color:rgba(232,186,93,.78);background:rgba(229,183,92,.09);box-shadow:inset 0 0 16px rgba(229,183,92,.11)}
+.cell.valid:hover{transform:translateY(-2px);background:rgba(229,183,92,.16)}
+.cell.target{cursor:pointer;border-color:rgba(215,90,80,.78);background:rgba(215,90,80,.11)}
+.cell.reachable{outline:1px solid rgba(107,180,131,.34)}
+.cell.reinforced:before{content:"◆";position:absolute;right:2px;top:0;color:#9fc4dd;font-size:13px;z-index:7;text-shadow:0 1px 4px #000}
+.cell.ruin-born:after{content:"古";position:absolute;left:2px;bottom:1px;color:#cf9a64;font-size:10px;z-index:7}
+.cell.frozen:after{content:"❄";position:absolute;inset:0;display:grid;place-items:center;color:#bde8ff;font-size:28px;z-index:8;background:rgba(93,166,205,.16);border-radius:10px;text-shadow:0 0 10px #6cc7ff}
+.cell.sealed:after{content:"封";position:absolute;inset:4px;display:grid;place-items:center;border:2px solid #9a6cbf;border-radius:50%;color:#d9b5f2;font-weight:700;z-index:8;background:rgba(72,34,92,.2)}
+.tile.hazard{display:grid;place-items:center;font-size:30px;background:radial-gradient(circle,#305a76,#172c39 65%,#0b171e);border-color:#5e9abb;box-shadow:inset 0 0 18px #0c2230,0 0 12px rgba(74,152,196,.25)}
+.tile.hazard.water:after{content:"🌊"}
+.tile.hazard.rift:after{content:"◉";color:#ba8ee5;text-shadow:0 0 12px #9457cc}
+.action-slot{border:1px solid #503b2b;border-radius:999px;padding:5px 9px;font-size:10px;background:#120e0b;color:#d7c3a6}
+.action-slot.used{color:#8d8377;text-decoration:line-through;border-color:#39312b}
+.custom-options{margin-top:12px;border:1px solid #5a402b;border-radius:14px;background:#110d0a;padding:12px}
+.custom-options h3{margin:0 0 8px;font-family:Georgia,"Yu Mincho",serif}
+.custom-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.check-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:9px}
+.check-row{display:flex;gap:7px;align-items:center;padding:7px;border:1px solid #3f2f25;border-radius:9px;background:#17110d;font-size:11px}
+.check-row input{accent-color:var(--gold)}
+@media(max-width:900px){.custom-grid,.check-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.custom-grid,.check-grid{grid-template-columns:1fr}}
+.tile{
+  width:70px;height:70px;border-radius:9px;position:relative;overflow:hidden;
+  background:
+    radial-gradient(circle at 22% 20%,rgba(255,255,255,.07) 0 2px,transparent 3px),
+    radial-gradient(circle at 73% 68%,rgba(0,0,0,.16) 0 7px,transparent 8px),
+    linear-gradient(145deg,#65503b,#392a20);
+  border:1px solid #80664d;box-shadow:0 4px 10px #000,inset 0 1px rgba(255,255,255,.14);
+  animation:tileIn .3s cubic-bezier(.2,.8,.3,1.2)
+}
+@keyframes tileIn{from{opacity:0;transform:scale(.52) rotate(-8deg)}to{opacity:1;transform:scale(1)}}
+.tile.ancient{background:linear-gradient(145deg,#5e5a43,#302f24);border-color:#817d58}
+.tile.warp{background:radial-gradient(circle,#56408b 0 14%,#22193d 15% 30%,#5a3a76 31% 36%,#2f213c 37%);border-color:#b18bdf;box-shadow:0 0 18px rgba(156,114,196,.45)}
+.tile.weatherproof{border-color:#7db7d9;box-shadow:0 0 13px rgba(91,166,207,.35),inset 0 0 13px rgba(91,166,207,.12)}
+.tile.returning{border-style:dashed}.tile.returning:before{content:"↩";position:absolute;right:3px;bottom:0;color:#f1d38a;z-index:7;font-size:13px;text-shadow:0 1px 3px #000}
+.weird-pack-note{border:1px dashed #8a5b95;background:#1b1020;border-radius:10px;padding:8px;color:#d7bddf}
+.tile.goal{display:grid;place-items:center;font-size:31px}
+.tile.goal.unknown:after{content:"?";font-family:Georgia,serif;color:#dfccb0;font-weight:bold;text-shadow:0 2px 5px #000}
+.tile.goal.gold:after{content:"✦";color:#ffd664;text-shadow:0 0 13px #ffb52d}
+.tile.goal.fake:after{content:"◆";color:#6d6257}
+.tile.start{display:grid;place-items:center;font-size:26px;color:#ffd98a}
+.path{position:absolute;background:#171311;box-shadow:inset 0 0 7px #000}
+.path.c{left:23px;top:23px;width:24px;height:24px;border-radius:7px}
+.path.n{left:23px;top:-2px;width:24px;height:37px}
+.path.e{right:-2px;top:23px;width:37px;height:24px}
+.path.s{left:23px;bottom:-2px;width:24px;height:37px}
+.path.w{left:-2px;top:23px;width:37px;height:24px}
+.split-marker{position:absolute;inset:0;pointer-events:none}
+.split-marker:before,.split-marker:after{content:"";position:absolute;background:#6b4f38;z-index:3}
+.split-marker:before{left:31px;top:0;width:8px;height:70px}
+.split-marker:after{left:0;top:31px;width:70px;height:8px}
+.split-marker .bridge{position:absolute;left:25px;top:24px;width:20px;height:22px;border-radius:8px;background:#171311;z-index:4;border:1px solid #80664d}
+.oneway{position:absolute;z-index:5;color:#d8c399;font-size:17px;left:27px;top:24px;text-shadow:0 1px 4px #000}
+.crystal-mark{position:absolute;right:4px;bottom:2px;z-index:7;color:#8ee7ff;font-size:13px;text-shadow:0 0 6px #27a8cf,0 1px 3px #000;letter-spacing:-3px}
+.side-panel{padding:10px;display:flex;flex-direction:column;gap:10px}
+.section-title{font-family:Georgia,"Yu Mincho",serif;font-size:14px;letter-spacing:.08em;color:#ead6b8;margin:0 0 7px}
+.role-card{border:1px solid #523d2d;border-radius:13px;background:#120e0b;padding:11px;position:relative;overflow:hidden}
+.role-card .watermark{position:absolute;right:-8px;bottom:-16px;font-size:68px;opacity:.08}
+.role-card b{font-family:Georgia,"Yu Mincho",serif;font-size:18px}
+.role-card p{font-size:11px;color:var(--muted);line-height:1.55;margin:4px 0 0}
+.players{display:grid;gap:6px}
+.player{display:grid;grid-template-columns:31px minmax(0,1fr) auto;gap:7px;align-items:center;padding:7px;border:1px solid #3e2e23;border-radius:10px;background:#15100d}
+.player.active{border-color:var(--gold);box-shadow:0 0 13px rgba(229,183,92,.14)}
+.player.jailed{border-color:#6a7080;background:#14161a}
+.avatar{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;background:#2b2018;border:1px solid #57412f}
+.player-name{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.player-meta{font-size:10px;color:var(--muted)}
+.player-stats{font-size:10px;text-align:right;color:#cdbb9f;white-space:nowrap}.known-job{color:var(--gold2);font-weight:700}.hand-count{color:#d8c8b1;font-weight:700}
+.log{height:200px;overflow:auto;padding:8px;border:1px solid #3d2d22;border-radius:11px;background:#0c0907;font-size:11px;line-height:1.48;color:#cbb9a3}
+.log p{margin:0 0 6px}.log .bad{color:#e77b72}.log .good{color:#85c999}.log .important{color:var(--gold2)}
+.hand-panel{margin-top:10px;padding:11px;position:sticky;bottom:0;z-index:15;backdrop-filter:blur(8px)}
+.hand-head{display:flex;align-items:center;justify-content:space-between;gap:9px}
+.hint{font-size:11px;color:var(--muted)}
+.controls{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.btn{border:1px solid #664c35;border-radius:10px;padding:8px 11px;background:linear-gradient(#34271d,#211812);cursor:pointer;transition:.14s}
+.btn:hover:not(:disabled){filter:brightness(1.17);transform:translateY(-1px)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.primary{border-color:#a5783e;background:linear-gradient(#936b32,#5d401f);color:#fff5df}
+.btn.danger{border-color:#84423b;background:linear-gradient(#74332e,#3d1d1a)}
+.btn.blue{border-color:#476d89;background:linear-gradient(#315873,#1f3442)}
+.hand{display:flex;gap:9px;overflow-x:auto;padding:11px 2px 8px;min-height:168px}
+.card{
+  width:118px;min-width:118px;height:150px;border-radius:13px;border:1px solid #70543b;
+  background:linear-gradient(145deg,#59432f,#2d221a);padding:8px;position:relative;
+  display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;
+  box-shadow:0 8px 14px rgba(0,0,0,.37),inset 0 1px rgba(255,255,255,.12);
+  transition:.16s;user-select:none
+}
+.card:hover{transform:translateY(-7px);z-index:4}
+.card.selected{transform:translateY(-10px);border-color:var(--gold2);box-shadow:0 12px 23px #000,0 0 18px rgba(229,183,92,.23)}
+.card.exchange-selected{outline:2px solid var(--blue);transform:translateY(-7px)}
+.card.contamination{background:linear-gradient(145deg,#41553b,#1d2a1c);border-color:#6b8c62}
+.card.tier5{box-shadow:0 8px 16px #000,0 0 13px rgba(255,212,88,.2)}
+.card-title{font-size:12px;font-weight:700}.card-type{font-size:9px;color:#d1bea3}
+.card-tier{position:absolute;right:7px;top:6px;color:#ffda77;font-size:10px;letter-spacing:-1px}
+.card-art{height:76px;border:1px solid rgba(255,255,255,.09);border-radius:8px;display:grid;place-items:center;background:rgba(0,0,0,.18);font-size:37px;overflow:hidden}
+.card-desc{font-size:9px;color:#d9c8b3;line-height:1.3}
+.tooltip{
+  position:fixed;z-index:90;max-width:300px;padding:10px 12px;border:1px solid #735639;border-radius:11px;
+  background:#120e0c;box-shadow:0 14px 34px #000;pointer-events:none;opacity:0;transform:translateY(4px);transition:.12s;
+  font-size:12px;line-height:1.55
+}
+.tooltip.show{opacity:1;transform:none}
+.tooltip b{color:var(--gold2)}
+.overlay{position:fixed;inset:0;background:rgba(4,3,2,.84);backdrop-filter:blur(6px);z-index:60;display:grid;place-items:center;padding:15px;overflow:auto}
+.modal{
+  width:min(820px,100%);border:1px solid #725335;border-radius:22px;background:linear-gradient(160deg,#2b2018,#120e0b);
+  padding:20px;box-shadow:0 34px 90px #000;position:relative;overflow:hidden
+}
+.modal h2{font-family:Georgia,"Yu Mincho",serif;letter-spacing:.09em;margin:4px 0 9px}
+.modal p{color:#cdbba5;line-height:1.65}
+.setup-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.setup-block{border:1px solid #493526;border-radius:14px;background:#15100d;padding:12px}
+.setup-block h3{margin:0 0 8px;font-family:Georgia,"Yu Mincho",serif;font-size:15px}
+.stage-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stage-card,.choice-card{border:1px solid #523d2d;border-radius:12px;background:#17110d;padding:10px;cursor:pointer;text-align:left}
+.stage-card:hover,.choice-card:hover{border-color:var(--gold)}
+.stage-card.selected,.choice-card.selected{border-color:var(--gold2);background:#2a1e13;box-shadow:0 0 14px rgba(229,183,92,.16)}
+.stage-card b{display:block}.stage-card span{display:block;font-size:10px;color:var(--muted);line-height:1.45;margin-top:4px}
+.form-row{display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:center;margin:7px 0}
+.form-row label{font-size:12px;color:#d4c1a6}
+select,input[type="number"],input[type="text"],input[type="file"]{
+  width:100%;min-width:0;padding:8px;border:1px solid #5b4330;border-radius:9px;background:#0e0b09;color:var(--text)
+}
+.target-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+.target-btn{border:1px solid #57412f;border-radius:11px;padding:10px;background:#17110d;cursor:pointer;text-align:left}
+.target-btn:hover{border-color:var(--gold)}
+.settings-table{width:100%;border-collapse:collapse;font-size:11px}
+.settings-table th,.settings-table td{border-bottom:1px solid #3e2e23;padding:7px;text-align:left}
+.settings-scroll{max-height:430px;overflow:auto;border:1px solid #413025;border-radius:12px}
+.animation-layer{position:fixed;inset:0;z-index:100;pointer-events:none;display:grid;place-items:center;overflow:hidden}
+.anim-object{font-size:min(25vw,180px);filter:drop-shadow(0 16px 20px #000);animation:animPop var(--dur,700ms) cubic-bezier(.15,.8,.25,1) forwards}
+@keyframes animPop{0%{opacity:0;transform:scale(.2) rotate(-20deg)}35%{opacity:1;transform:scale(1.18) rotate(5deg)}75%{opacity:1;transform:scale(.96)}100%{opacity:0;transform:scale(1.35)}}
+.anim-beam{position:absolute;width:160%;height:24px;background:linear-gradient(90deg,transparent,#fff,var(--gold2),#fff,transparent);box-shadow:0 0 35px var(--gold2);animation:beam var(--dur) ease-in-out forwards}
+.anim-beam.vertical{transform:rotate(90deg)}
+@keyframes beam{0%,100%{opacity:0;scale:.2 1}25%,70%{opacity:1;scale:1 1}}
+.anim-cage{width:190px;height:230px;border:12px double #87909e;box-shadow:0 0 30px #000,inset 0 0 30px #000;animation:cage var(--dur) ease-in-out forwards}
+@keyframes cage{0%{opacity:0;transform:translateY(-110%)}35%,75%{opacity:1;transform:none}100%{opacity:0;transform:translateY(20px)}}
+.anim-coins{position:absolute;inset:0}
+.anim-coins span{position:absolute;left:50%;top:50%;font-size:38px;animation:coinFly var(--dur) ease-out forwards}
+@keyframes coinFly{to{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(.4)}}
+.flash{position:absolute;inset:0;background:white;opacity:0;pointer-events:none;z-index:25}
+.flash.go{animation:flash .4s}@keyframes flash{from{opacity:.45}to{opacity:0}}
+.screen-shake{animation:shake .38s}@keyframes shake{0%,100%{transform:none}20%{transform:translate(-6px,2px)}45%{transform:translate(5px,-3px)}70%{transform:translate(-3px,1px)}}
+.toast{position:fixed;left:50%;top:70px;transform:translate(-50%,-18px);z-index:120;padding:10px 16px;border:1px solid #765536;border-radius:999px;background:#17100c;box-shadow:0 12px 32px #000;opacity:0;pointer-events:none;transition:.22s;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.dust{position:absolute;width:5px;height:5px;border-radius:50%;background:#b89870;pointer-events:none;animation:dust .65s ease-out forwards;z-index:22}
+@keyframes dust{to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
+.reward-chip{display:inline-flex;gap:4px;align-items:center;padding:3px 7px;border-radius:999px;border:1px solid #59422f;background:#15100d;font-size:10px;margin:2px}
+.big-icon{text-align:center;font-size:72px;filter:drop-shadow(0 10px 10px #000)}
+.result-list{display:grid;gap:6px;margin:12px 0}
+.result-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:8px;border:1px solid #483529;border-radius:10px;background:#15100d}
+.small{font-size:11px;color:var(--muted)}
+.footer-note{text-align:center;color:#756859;font-size:10px;margin:8px 0}
+@media(max-width:1120px){
+  .game-shell,.game-shell.portrait-right{grid-template-columns:1fr}
+  .character-panel{min-height:220px;order:0!important}
+  .character-stage{min-height:210px;align-items:center}
+  .object-character{height:180px;font-size:95px}.character-image{max-height:190px}
+  .main-grid{grid-template-columns:1fr}.side-panel{display:grid;grid-template-columns:1fr 1fr}.log-wrap{grid-column:1/-1}
+}
+@media(max-width:700px){
+  .app{padding:6px}.crest,.brand p{display:none}.topbar{align-items:flex-start}
+  .setup-grid,.stage-grid{grid-template-columns:1fr}.side-panel{grid-template-columns:1fr}.log-wrap{grid-column:auto}
+  .form-row{grid-template-columns:1fr}.target-list{grid-template-columns:1fr}
+  .hand-panel{position:relative}.card{width:108px;min-width:108px}
+}
+
+.top-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.nav-btn{border:1px solid #6a5038;border-radius:999px;padding:7px 11px;background:#17110d;cursor:pointer;font-size:12px}
+.nav-btn:hover{border-color:var(--gold);filter:brightness(1.15)}
+.player.has-debuff{border-color:#9a4b43;background:linear-gradient(90deg,rgba(128,48,42,.22),#15100d 42%);box-shadow:inset 4px 0 #c85a50,0 0 14px rgba(200,90,80,.12)}
+.status-list{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}.status-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;border:1px solid #594332;border-radius:7px;padding:4px 7px;background:#17110d;line-height:1.1;box-shadow:inset 0 1px rgba(255,255,255,.04)}.status-badge.bad{border-color:#a55048;color:#ffd2cd;background:rgba(126,43,38,.45)}.status-badge.warn{border-color:#a2783d;color:#ffe0a0;background:rgba(112,75,28,.42)}.status-badge.good{border-color:#477f5b;color:#b5ebc3;background:rgba(42,100,64,.34)}.status-count{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:50%;background:#9c4740;color:white;font-size:11px;font-weight:800;margin-left:4px}
+.toggle-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;max-height:235px;overflow:auto;padding:7px;border:1px solid #3f2f24;border-radius:11px;background:#0d0a08}.toggle-grid label{display:flex;gap:6px;align-items:flex-start;padding:6px;border:1px solid #3d2e23;border-radius:8px;background:#15100d;font-size:10px;line-height:1.35}.toggle-grid label.locked{opacity:.78;border-color:#80633e}
+.rulebook-toolbar{display:grid;grid-template-columns:160px 1fr;gap:8px;margin-bottom:10px}.rulebook-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:510px;overflow:auto}.rule-entry{border:1px solid #483528;border-radius:11px;background:#15100d;padding:10px}.rule-entry b{color:var(--gold2)}.rule-entry .meta{font-size:10px;color:var(--muted);margin:3px 0}.rule-entry p{font-size:11px;margin:4px 0 0;line-height:1.5}.rule-path{display:flex;gap:4px;margin-top:5px}.rule-path span{font-size:10px;border:1px solid #5a4330;border-radius:5px;padding:2px 4px}
+.online-layout{display:grid;grid-template-columns:1fr 1fr;gap:10px}.online-card{border:1px solid #493528;border-radius:13px;background:#15100d;padding:11px}.online-status{font-size:11px;padding:7px;border-radius:9px;border:1px solid #4a392c;background:#0e0b09;margin:7px 0}.room-players{display:grid;gap:5px;max-height:180px;overflow:auto}.room-player{display:flex;justify-content:space-between;padding:7px;border:1px solid #3e2f25;border-radius:8px}.chat-log{height:210px;overflow:auto;border:1px solid #3e2f25;border-radius:9px;background:#0c0907;padding:8px;font-size:11px}.chat-log p{margin:0 0 6px}.chat-row{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:7px}.rating-box{display:flex;gap:8px;align-items:center;justify-content:space-between;border:1px solid #634a31;border-radius:11px;padding:9px;background:#1a130e}.rating-value{font-family:Georgia,serif;font-size:24px;color:var(--gold2)}
+.animation-caption{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);width:min(760px,90%);padding:13px 17px;border:1px solid #8b673f;border-radius:14px;background:rgba(15,10,7,.92);box-shadow:0 12px 40px #000;text-align:center;font-family:Georgia,"Yu Mincho",serif;font-size:clamp(14px,2vw,21px);letter-spacing:.04em;color:#fff1d4;animation:captionIn var(--dur,1000ms) ease-in-out forwards}.animation-caption b{display:block}.animation-caption small{display:block;margin-top:6px;font-family:"Yu Gothic UI",sans-serif;font-size:11px;line-height:1.45;letter-spacing:0;color:#d3c1a8}
+@keyframes captionIn{0%{opacity:0;transform:translate(-50%,16px)}18%,78%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-6px)}}
+.speed-note{font-size:10px;color:var(--muted)}
+.random-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.setup-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+@media(max-width:700px){.toggle-grid,.rulebook-list{grid-template-columns:1fr}.online-layout,.rulebook-toolbar,.random-row{grid-template-columns:1fr}.top-actions{width:100%;justify-content:flex-start}}
+
+
+/* v14: 左側キャラクター＋ソロチャット、Tier配色 */
+.game-shell{grid-template-columns:286px minmax(0,1fr)}
+.character-panel{min-height:560px;display:flex;flex-direction:column;gap:10px}
+.character-stage{height:250px;min-height:250px;flex:0 0 auto}
+.object-character{height:190px;font-size:96px}
+.character-image{max-height:205px}
+.solo-chat-panel{display:flex;flex-direction:column;min-height:0;flex:1;border:1px solid #433126;border-radius:14px;background:#100c09;padding:9px}
+.solo-chat-panel h3{font-family:Georgia,"Yu Mincho",serif;margin:0 0 7px;font-size:14px;color:#ead6b8}
+.solo-chat-log{height:225px;overflow:auto;border:1px solid #382a20;border-radius:9px;background:#090706;padding:8px;font-size:11px;line-height:1.5}
+.solo-chat-log p{margin:0 0 7px}.solo-chat-log .me{color:var(--gold2)}.solo-chat-log .system{color:#9eb8c8}.solo-chat-log .lie{font-style:italic}
+.solo-chat-row{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:7px}.solo-chat-row input{min-width:0;padding:8px;border:1px solid #55402d;border-radius:9px;background:#0c0907;color:var(--text)}
+.private-log-check{margin-top:7px;font-size:10px;color:var(--muted);display:flex;gap:6px;align-items:flex-start}
+.card.tier1{background:linear-gradient(145deg,#493a2d,#241c16);border-color:#6a594a}
+.card.tier2{background:linear-gradient(145deg,#3f513f,#202b20);border-color:#6c8a68}
+.card.tier3{background:linear-gradient(145deg,#344d65,#1c2b39);border-color:#5e86a8}
+.card.tier4{background:linear-gradient(145deg,#59436b,#2c2135);border-color:#8b69a5}
+.card.tier5{background:linear-gradient(145deg,#745627,#342411);border-color:#d5a34a;box-shadow:0 8px 16px #000,0 0 15px rgba(255,210,80,.22)}
+.tile.start{color:#fff1a7;border-color:#ffd15a;background:radial-gradient(circle,#8e681b 0 18%,#49330f 19% 48%,#20170b 49%);box-shadow:0 0 18px rgba(255,199,61,.65),inset 0 0 18px rgba(255,219,108,.28)}
+.crystal-mark{color:#ffd75c;text-shadow:0 0 7px #ffb000,0 1px 3px #000}
+.volume-badge{border-color:#806331!important;color:#ffe2a0!important}
+@media(max-width:1120px){.game-shell,.game-shell.portrait-right{grid-template-columns:1fr}.character-panel{min-height:520px}.character-stage{height:210px;min-height:210px}.solo-chat-log{height:190px}}
+
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="brand">
+    <div class="crest">⛏</div>
+    <div>
+      <h1>鉱脈の裏切り者：会話する坑道</h1>
+      <p>ステージが盤面を歪め、職業が勝敗を盗む。一人用正体隠匿カードゲーム</p>
+    </div>
+  </div>
+  <div class="hud">
+    <span class="pill">ステージ <b id="stageHud">坑道</b></span>
+    <span class="pill volume-badge">量 <b id="volumeHud">ノーマル</b></span><span class="pill">山札 <b id="deckCount">0</b></span>
+    <span class="pill">巡目 <b id="roundCount">1</b></span>
+    <span class="pill">手番 <b id="currentName">-</b></span>
+    <span class="action-slot" id="pathSlot">道 1枚</span>
+    <span class="action-slot" id="itemSlot">アイテム 1枚</span>
+    <div class="top-actions">
+      <button class="nav-btn" id="onlineBtn">🌐 オンライン</button>
+      <button class="nav-btn" id="rulebookBtn">📖 ルールブック</button>
+    </div>
+  </div>
+</header>
+
+<div class="game-shell" id="gameShell">
+  <aside class="panel character-panel">
+    <div class="character-stage" id="characterStage">
+      <div class="profession-aura" id="professionAura"></div>
+      <div class="object-character" id="objectCharacter">🐈‍⬛</div>
+      <img class="character-image hidden" id="characterImage" alt="選択したキャラクター">
+      <div class="character-caption">
+        <b id="characterName">紫影のメイド</b>
+        <span id="characterJob">鉱山技師</span>
+      </div>
+    </div>
+    <div class="solo-chat-panel">
+      <h3>坑道チャット</h3>
+      <div class="solo-chat-log" id="soloChatLog"><p class="system">坑道に入るとNPCがここで会話します。外部AIは使わないため無料です。</p></div>
+      <div class="solo-chat-row"><input id="soloChatInput" type="text" maxlength="120" placeholder="NPCに話しかける"><button class="btn blue" id="sendSoloChatBtn" type="button">送信</button></div>
+      <label class="private-log-check"><input id="privateLogCheck" type="checkbox" checked>自分に関する非公開記録を、このチャットへ自分だけ表示する</label>
+    </div>
+  </aside>
+
+  <div class="content-shell">
+    <div class="main-grid">
+      <section class="panel board-panel" id="boardPanel">
+        <div class="board-wrap">
+          <div class="board" id="board"></div>
+          <div class="flash" id="flash"></div>
+        </div>
+      </section>
+
+      <aside class="panel side-panel">
+        <div>
+          <h2 class="section-title">正体と職業</h2>
+          <div class="role-card">
+            <div class="watermark" id="roleWatermark">?</div>
+            <b id="roleName">未確認</b>
+            <p id="roleDesc">ゲーム開始後に公開されます。</p>
+            <div id="professionTags"></div>
+          </div>
+        </div>
+        <div>
+          <h2 class="section-title">プレイヤー</h2>
+          <div class="players" id="players"></div>
+        </div>
+        <div class="log-wrap">
+          <h2 class="section-title">坑道記録</h2>
+          <div class="log" id="log"></div>
+        </div>
+      </aside>
+    </div>
+
+    <section class="hand-panel">
+      <div class="hand-head">
+        <div>
+          <h2 class="section-title" style="margin-bottom:2px">手札</h2>
+          <div class="hint" id="hint">カードを選択してください。</div>
+        </div>
+        <div class="controls">
+          <button class="btn" id="rotateBtn" disabled>回転</button>
+          <button class="btn blue" id="exchangeBtn" disabled>交換ドロー</button>
+          <button class="btn" id="cancelExchangeBtn" hidden>交換取消</button>
+          <button class="btn danger" id="discardBtn" disabled>捨てる</button>
+          <button class="btn primary" id="endTurnBtn" disabled>手番終了</button>
+          <button class="btn" id="settingsBtn">設定</button>
+          <button class="btn primary" id="newGameBtn">新しい坑道</button>
+        </div>
+      </div>
+      <div class="hand" id="hand"></div>
+    </section>
+  </div>
+</div>
+<div class="footer-note">非公式のオリジナル作品です。既存作品の画像・音声・固有デザインは使用していません。</div>
+</div>
+
+<div class="overlay" id="setupOverlay">
+  <div class="modal">
+    <div class="big-icon">⛏️</div>
+    <h2>変転坑道を選ぶ</h2>
+    <div class="setup-grid">
+      <div class="setup-block">
+        <h3>ステージ</h3>
+        <div class="stage-grid" id="stageGrid"></div>
+      </div>
+      <div class="setup-block">
+        <h3>あなた</h3>
+        <div class="form-row">
+          <label for="characterSelect">キャラクター</label>
+          <select id="characterSelect"></select>
+        </div>
+        <div class="form-row">
+          <label>職業</label>
+          <div class="reward-chip">🎲 ランダム決定（炭鉱夫は最低人数を保証）</div>
+        </div>
+        <div class="form-row">
+          <label for="playerCountSelect">プレイヤー数</label>
+          <select id="playerCountSelect">
+            <option value="3">3人</option><option value="4">4人</option><option value="5" selected>5人</option>
+            <option value="6">6人</option><option value="7">7人</option><option value="8">8人</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="gameVolumeSelect">ゲームボリューム</label>
+          <select id="gameVolumeSelect">
+            <option value="quick">さくっと</option><option value="normal" selected>ノーマル</option>
+            <option value="voluminous">ボリューミー</option><option value="realmine">リアルマイン</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="aiDifficultySelect">AIの強さ</label>
+          <select id="aiDifficultySelect">
+            <option value="1">1：のんびり</option><option value="2">2：控えめ</option>
+            <option value="3" selected>3：標準</option><option value="4">4：狡猾</option><option value="5">5：冷酷</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="portraitSide">表示位置</label>
+          <select id="portraitSide">
+            <option value="left">画面左</option>
+            <option value="right">画面右</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="customPortrait">画像・GIF</label>
+          <input id="customPortrait" type="file" accept="image/*">
+        </div>
+        <div class="form-row">
+          <label for="carryRewardsCheck">継続報酬</label>
+          <label class="check-row"><input id="carryRewardsCheck" type="checkbox" checked>前回までの累計を引き継ぐ</label>
+        </div>
+        <div class="form-row">
+          <label for="weirdPackCheck">異常カード</label>
+          <label class="check-row weird-pack-note"><input id="weirdPackCheck" type="checkbox">異常坑道カードパックを有効化（変則カード20種）</label>
+        </div>
+        <div id="campaignSummary" class="small">累計報酬はまだありません。</div>
+        <button class="btn" id="resetCampaignBtn" type="button">累計報酬をリセット</button>
+        <p class="small">画像を指定しない場合は、選択キャラクターのゲームオブジェクトが表示されます。</p>
+      </div>
+    </div>
+    <div class="custom-options hidden" id="customOptions">
+      <h3>🧩 カスタムゲーム設定</h3>
+      <div class="custom-grid">
+        <div><label class="small" for="customCols">横幅</label><input id="customCols" type="number" min="7" max="15" value="11"></div>
+        <div><label class="small" for="customRows">縦幅</label><input id="customRows" type="number" min="7" max="15" value="9"></div>
+        <div><label class="small" for="customLayout">マップ種類</label><select id="customLayout"><option value="corridor">横断坑道</option><option value="cross">中央・四方</option><option value="corners">中央・四隅</option><option value="random">ランダム配置</option></select></div>
+        <div><label class="small" for="randomSizeMode">サイズ</label><select id="randomSizeMode"><option value="fixed">固定</option><option value="random">7～15からランダム</option></select></div>
+        <div><label class="small" for="randomLayoutMode">マップ</label><select id="randomLayoutMode"><option value="fixed">上の種類を使用</option><option value="random">毎回ランダム</option></select></div>
+        <div><label class="small" for="customGoals">ゴール数</label><input id="customGoals" type="number" min="2" max="6" value="4"></div>
+        <div><label class="small" for="customItemPreset">アイテム構成</label><select id="customItemPreset"><option value="all">全部入り</option><option value="standard">標準</option><option value="peaceful">建設中心</option><option value="chaos">破壊・混沌多め</option></select></div>
+        <div><label class="small" for="customHand">初期手札</label><input id="customHand" type="number" min="3" max="8" value="5"></div>
+        <div><label class="small" for="customDeckSize">山札枚数</label><input id="customDeckSize" type="number" min="0" max="999" value="0"><span class="small">0はボリュームから自動計算</span></div>
+        <div><label class="small" for="customVolume">山札倍率</label><select id="customVolume"><option value="quick">さくっと</option><option value="normal" selected>ノーマル</option><option value="voluminous">ボリューミー</option><option value="realmine">リアルマイン</option></select></div>
+      </div>
+      <label class="check-row" style="margin-top:9px"><input id="moreChaosMode" type="checkbox">モアカオスモード：上限や整合性をほぼ無視する（山札999、過剰ゴールなどを許可）</label>
+      <div class="check-grid">
+        <label class="check-row"><input id="gWrap" type="checkbox">端同士を接続</label>
+        <label class="check-row"><input id="gFree" type="checkbox">離れた場所へ配置可</label>
+        <label class="check-row"><input id="gCasino" type="checkbox">列スロット</label>
+        <label class="check-row"><input id="gGold" type="checkbox">道配置で報酬</label>
+        <label class="check-row"><input id="gRuins" type="checkbox">遺跡道の自然発生</label>
+        <label class="check-row"><input id="gFrozen" type="checkbox">氷結</label>
+        <label class="check-row"><input id="gFlooded" type="checkbox">水没</label>
+        <label class="check-row"><input id="gClockwork" type="checkbox">全道回転</label>
+        <label class="check-row"><input id="gMirror" type="checkbox">鏡写し配置</label>
+        <label class="check-row"><input id="gAbyssRail" type="checkbox">奈落レール</label>
+        <label class="check-row"><input id="gHaunted" type="checkbox">ゴール転移</label>
+      </div>
+      <div class="setup-grid" style="margin-top:10px">
+        <div class="setup-block">
+          <h3>使用するカード</h3>
+          <p class="small">チェックを外したカードは山札・保管庫に入りません。接続不良を起こす「交差通路」は初期状態で無効です。</p>
+          <div class="toggle-grid" id="cardToggleGrid"></div>
+        </div>
+        <div class="setup-block">
+          <h3>使用する職業</h3>
+          <p class="small">炭鉱夫はゲーム成立のため無効化できません。人数に応じて最低数を必ず配置します。</p>
+          <div class="toggle-grid" id="professionToggleGrid"></div>
+        </div>
+      </div>
+    </div>
+    <div class="setup-actions">
+      <button class="btn primary" id="startBtn" style="padding:11px 25px;font-size:16px">ソロ坑道へ入る</button>
+      <button class="btn blue" id="setupOnlineBtn" style="padding:11px 25px;font-size:16px">オンラインロビー</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="stageOverlay">
+  <div class="modal" style="max-width:680px;text-align:center">
+    <div class="big-icon" id="stageRevealIcon">⛏️</div>
+    <h2 id="stageRevealTitle">ステージ</h2>
+    <p id="stageRevealText"></p>
+    <div id="stageRevealDetails" style="display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:12px 0 16px"></div>
+    <button class="btn primary" id="stageOkBtn">ステージを確認</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="roleOverlay">
+  <div class="modal" style="max-width:620px;text-align:center">
+    <div class="big-icon" id="revealIcon">?</div>
+    <h2 id="revealTitle">役職</h2>
+    <p id="revealText"></p>
+    <button class="btn primary" id="roleOkBtn">正体を隠して開始</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="targetOverlay">
+  <div class="modal" style="max-width:650px">
+    <div class="big-icon" id="targetIcon">🎯</div>
+    <h2 id="targetTitle">対象を選択</h2>
+    <p id="targetText"></p>
+    <div class="target-list" id="targetList"></div>
+    <button class="btn" id="cancelTargetBtn">やめる</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="settingsOverlay">
+  <div class="modal">
+    <h2>演出・表示設定</h2>
+    <div class="setup-grid">
+      <div class="setup-block">
+        <h3>キャラクター表示</h3>
+        <div class="form-row"><label for="settingsSide">表示位置</label><select id="settingsSide"><option value="left">画面左</option><option value="right">画面右</option></select></div>
+        <div class="form-row"><label for="settingsCharacter">キャラクター</label><select id="settingsCharacter"></select></div>
+        <div class="form-row"><label for="settingsPortrait">画像・GIF</label><input id="settingsPortrait" type="file" accept="image/*"></div>
+      </div>
+      <div class="setup-block">
+        <h3>カード演出</h3>
+        <div class="form-row"><label for="animationSpeedSelect">全体の演出速度</label><select id="animationSpeedSelect">
+          <option value="2.4">1：映画的（最も長い）</option><option value="1.8" selected>2：ゆっくり</option><option value="1.25">3：標準</option><option value="0.8">4：高速</option><option value="0.45">5：最速</option>
+        </select></div>
+        <p class="speed-note">個別時間 × この倍率で再生します。演出中は、使用者・カード名・行動内容を画面中央下に表示します。</p>
+      </div>
+    </div>
+    <div class="settings-scroll" style="margin-top:10px">
+      <table class="settings-table">
+        <thead><tr><th>カード</th><th>Tier</th><th>演出時間(ms)</th><th>ゲームオブジェクト</th></tr></thead>
+        <tbody id="animationSettingsBody"></tbody>
+      </table>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+      <button class="btn" id="resetAnimationBtn">初期値へ</button>
+      <button class="btn primary" id="closeSettingsBtn">反映して閉じる</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="overlay hidden" id="rulebookOverlay">
+  <div class="modal">
+    <h2>📖 ルールブック</h2>
+    <div class="rulebook-toolbar">
+      <select id="rulebookCategory"><option value="all">すべて</option><option value="cards">カード</option><option value="professions">職業</option><option value="stages">ステージ</option><option value="rules">基本ルール</option></select>
+      <input id="rulebookSearch" type="text" placeholder="名前や説明から検索">
+    </div>
+    <div class="rulebook-list" id="rulebookList"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn primary" id="closeRulebookBtn">閉じる</button></div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="onlineOverlay">
+  <div class="modal">
+    <h2>🌐 オンラインロビー</h2>
+    <p class="small">この画面を本当にオンラインで使うには、ZIP内のNode.jsサーバーを起動して、そのURLからゲームを開きます。単体HTMLで開いた場合はロビー接続だけ利用できません。</p>
+    <div class="online-layout">
+      <div class="online-card">
+        <h3>プロフィールと部屋</h3>
+        <div class="form-row"><label for="onlinePlayerName">プレイヤーネーム</label><input id="onlinePlayerName" type="text" maxlength="20" value="Miner"></div>
+        <div class="rating-box"><span>レート</span><b class="rating-value" id="onlineRating">1000</b><span class="small" id="onlineGames">0戦</span></div>
+        <div class="online-status" id="onlineStatus">未接続</div>
+        <div class="controls">
+          <button class="btn blue" id="connectOnlineBtn">サーバー接続</button>
+          <button class="btn primary" id="createRoomBtn" disabled>部屋を作る</button>
+        </div>
+        <div class="form-row"><label for="joinRoomCode">ルームコード</label><input id="joinRoomCode" type="text" maxlength="6" placeholder="ABC123"></div>
+        <button class="btn" id="joinRoomBtn" disabled>部屋へ参加</button>
+        <div class="form-row"><label for="onlineNpcCount">追加NPC</label>
+          <select id="onlineNpcCount">
+            <option value="0">0人</option><option value="1">1人</option><option value="2">2人</option>
+            <option value="3" selected>3人</option><option value="4">4人</option><option value="5">5人</option><option value="6">6人</option>
+          </select>
+        </div>
+        <div class="form-row"><label for="onlineAiDifficulty">NPC強さ</label>
+          <select id="onlineAiDifficulty">
+            <option value="1">1：のんびり</option><option value="2">2：控えめ</option>
+            <option value="3" selected>3：標準</option><option value="4">4：狡猾</option><option value="5">5：冷酷</option>
+          </select>
+        </div>
+        <p class="small">オンライン部屋にもNPCを追加できます。人間とNPCの合計は最大8人です。盤面操作の完全同期はβ段階で、ホスト進行方式です。</p>
+      </div>
+      <div class="online-card">
+        <h3>ルーム <span id="currentRoomCode">-</span></h3>
+        <div class="room-players" id="onlinePlayerList"><div class="small">参加者はいません。</div></div>
+        <div class="controls" style="margin-top:8px"><button class="btn primary" id="onlineStartBtn" disabled>ホスト進行で対戦開始</button><button class="btn" id="leaveRoomBtn" disabled>退出</button></div>
+        <h3 style="margin-top:12px">チャット</h3>
+        <div class="chat-log" id="chatLog"></div>
+        <div class="chat-row"><input id="chatInput" type="text" maxlength="160" placeholder="メッセージ"><button class="btn blue" id="sendChatBtn" disabled>送信</button></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="btn" id="closeOnlineBtn">閉じる</button></div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="resultOverlay">
+  <div class="modal" style="max-width:680px">
+    <div class="big-icon" id="resultIcon">🏆</div>
+    <h2 id="resultTitle">決着</h2>
+    <p id="resultText"></p>
+    <div class="result-list" id="resultList"></div>
+    <div class="controls" style="justify-content:center;margin-top:12px">
+      <button class="btn primary" id="againBtn">条件を変えて続ける</button>
+      <button class="btn danger" id="freshGameBtn">累計をリセットして新規</button>
+    </div>
+  </div>
+</div>
+
+<div class="animation-layer hidden" id="animationLayer"></div>
+<div class="tooltip" id="tooltip"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+"use strict";
+
+const el=id=>document.getElementById(id);
+const DIRS=["n","e","s","w"];
+const VEC={n:[0,-1],e:[1,0],s:[0,1],w:[-1,0]};
+const OPP={n:"s",e:"w",s:"n",w:"e"};
+const OBJECTS={
+  pickaxe:"⛏️", bomb:"💣", xbomb:"❌", beam:"beam", portal:"🌀", cage:"cage",
+  key:"🗝️", shield:"🛡️", map:"🗺️", crystal:"🔮", chest:"🎁", poison:"☣️",
+  swap:"🔁", cards:"🃏", coins:"coins", drill:"🛠️", thunder:"⚡", bat:"🦇",
+  gear:"⚙️", lantern:"🏮", vine:"🌿", dice:"🎰", ghost:"👻", pump:"🚰",
+  snow:"❄️", mirror:"🪞", clock:"⏳", drone:"🛸", magnet:"🧲", seal:"🪬",
+  rail:"🚃", wave:"🌊", skull:"☠️", eye:"👁️", bridge:"🛤️", convoy:"🚂", crown:"👑"
+};
+const OBJECT_LABELS={
+  pickaxe:"つるはし",bomb:"爆弾",xbomb:"X爆破",beam:"光線",portal:"ワープ渦",cage:"牢屋",
+  key:"鍵",shield:"補強盾",map:"地図",crystal:"水晶",chest:"宝箱",poison:"汚染",
+  swap:"交換矢印",cards:"カード",coins:"コイン",drill:"掘削機",thunder:"雷",bat:"コウモリ",
+  gear:"歯車",lantern:"提灯",vine:"遺跡の蔦",dice:"スロット",ghost:"鉱山霊",pump:"排水ポンプ",
+  snow:"氷晶",mirror:"鏡",clock:"時限装置",drone:"測量ドローン",magnet:"磁力装置",seal:"封印紋",
+  rail:"トロッコ",wave:"水流",skull:"呪い",eye:"職業鑑定眼",bridge:"連結坑道",convoy:"坑道列車",crown:"王冠"
+};
+
+const STAGES={
+  classic:{name:"オーソドックス坑道",icon:"⛏️",desc:"左端から三つのゴールを目指す標準坑道。",cols:11,rows:7,start:{x:0,y:3},goals:[{x:10,y:1},{x:10,y:3},{x:10,y:5}],wrap:false,free:false,gimmicks:[],itemPreset:"all"},
+  floating:{name:"浮遊島",icon:"🏝️",desc:"接続していない空間にも道を配置できる。",cols:11,rows:7,start:{x:0,y:3},goals:[{x:10,y:1},{x:10,y:3},{x:10,y:5}],wrap:false,free:true,gimmicks:["free"],itemPreset:"all"},
+  casino:{name:"カジノ坑道",icon:"🎰",desc:"2巡ごとにランダムな1列だけが、上下どちらかへ1マス移動する。",cols:11,rows:7,start:{x:0,y:3},goals:[{x:10,y:1},{x:10,y:3},{x:10,y:5}],wrap:false,free:false,gimmicks:["casino"],itemPreset:"chaos"},
+  goldvein:{name:"金脈",icon:"🪙",desc:"道を3枚配置するごとに、配置者が報酬+1を得る。",cols:11,rows:7,start:{x:0,y:3},goals:[{x:10,y:1},{x:10,y:3},{x:10,y:5}],wrap:false,free:false,gimmicks:["gold"],itemPreset:"all"},
+  ruins:{name:"遺跡",icon:"🏛️",desc:"道を置くと、隣に古代の道が勝手に出現することがある。",cols:11,rows:7,start:{x:0,y:3},goals:[{x:10,y:1},{x:10,y:3},{x:10,y:5}],wrap:false,free:false,gimmicks:["ruins"],itemPreset:"all"},
+  game:{name:"ゲーム盤",icon:"♟️",desc:"中央が出発点。四方にゴールがあり、盤面の端同士が接続する。",cols:9,rows:9,start:{x:4,y:4},goals:[{x:4,y:0},{x:8,y:4},{x:4,y:8},{x:0,y:4}],wrap:true,free:false,gimmicks:[],itemPreset:"all"},
+  frozen:{name:"氷晶洞窟",icon:"❄️",desc:"一巡ごとに道が凍結し、解氷するまで接続を失う。",cols:11,rows:7,start:{x:0,y:3},goals:[{x:10,y:1},{x:10,y:3},{x:10,y:5}],wrap:false,free:false,gimmicks:["frozen"],itemPreset:"standard"},
+  flooded:{name:"水没採掘場",icon:"🌊",desc:"一巡ごとに一時水没が1つ増える。水は3巡後に自然消滅し、融解ランプが初期手札に保証される。",cols:11,rows:8,start:{x:0,y:4},goals:[{x:10,y:1},{x:10,y:4},{x:10,y:6}],wrap:false,free:false,gimmicks:["flooded"],itemPreset:"standard"},
+  clockwork:{name:"時計仕掛けの坑道",icon:"⚙️",desc:"3巡ごとに盤面上の道が時計回りに90度回転する。",cols:11,rows:7,start:{x:0,y:3},goals:[{x:10,y:1},{x:10,y:3},{x:10,y:5}],wrap:false,free:false,gimmicks:["clockwork"],itemPreset:"chaos"},
+  mirror:{name:"鏡面鉱山",icon:"🪞",desc:"道を置くと、反対側に鏡写しの道が出現することがある。",cols:11,rows:7,start:{x:0,y:3},goals:[{x:10,y:1},{x:10,y:3},{x:10,y:5}],wrap:false,free:false,gimmicks:["mirror"],itemPreset:"all"},
+  abyssrail:{name:"奈落レール",icon:"🚃",desc:"3巡ごとにランダムな横1列だけが、左右どちらかへ1マス移動する。",cols:12,rows:8,start:{x:0,y:4},goals:[{x:11,y:1},{x:11,y:4},{x:11,y:6}],wrap:false,free:false,gimmicks:["abyssrail"],itemPreset:"chaos"},
+  haunted:{name:"亡霊坑道",icon:"👻",desc:"3巡ごとに未確認ゴール2つの位置だけが入れ替わる。",cols:11,rows:7,start:{x:0,y:3},goals:[{x:10,y:1},{x:10,y:3},{x:10,y:5}],wrap:false,free:false,gimmicks:["haunted"],itemPreset:"all"},
+  custom:{name:"カスタムゲーム",icon:"🧩",desc:"マップ寸法、配置形式、複数のステージギミックを自由に組み合わせる。",isCustom:true}
+};
+
+const PROFESSIONS={
+  saboteur:{name:"お邪魔者",icon:"🧨",desc:"坑夫を装い、真のゴールへの到達を阻む敵対職。お邪魔者であること自体が職業として扱われる。",aura:"#b94c45"},
+  miner:{name:"炭鉱夫",icon:"⛏️",desc:"ゴール報酬の標準取り分を受け取る、坑夫陣営の中核職。",aura:"#c99b5c"},
+  boss:{name:"ボス",icon:"👑",desc:"坑夫陣営。ゴール成功時の山分けで通常坑夫の1.6倍の権利を持つ。",aura:"#d5a83f"},
+  thief:{name:"泥棒",icon:"🥷",desc:"終了時、牢屋にいなければ最も報酬の多い相手から宝を2個盗む。",aura:"#7f6aa8"},
+  police:{name:"警察官",icon:"👮",desc:"終了時、牢屋にいるプレイヤー数に応じて最大報酬+2。",aura:"#527ea4"},
+  warper:{name:"ワーパー",icon:"🌀",desc:"接続していない場所へ通常道を配置できる。浮遊島では炭鉱夫になる。",aura:"#8c63ba"},
+  engineer:{name:"鉱山技師",icon:"⚙️",desc:"唯一、通常の道カードを回転して配置できる。",aura:"#b7834d"},
+  slacker:{name:"怠け者",icon:"😴",desc:"ゴール成功時に小さな取り分を得る。自発的な廃棄5枚ごとに終了時+1となり、怠け実績次第で炭鉱夫を上回る。",aura:"#6e8b63"},
+  prospector:{name:"山師",icon:"🔍",desc:"偽ゴールから得る保管カードが1枚多い。",aura:"#d2a94f"},
+  demolitionist:{name:"爆破技師",icon:"🧨",desc:"爆破カードを2回使うごとに、終了時報酬+1。",aura:"#b94c45"},
+  warden:{name:"看守",icon:"🔒",desc:"牢屋へ送った相手2人につき、終了時報酬+1。",aura:"#687180"},
+  cartographer:{name:"地図師",icon:"🗺️",desc:"各ゲームで最初に行ったゴール調査だけ報酬+1。以後は情報のみ得る。",aura:"#5d9aa0"},
+  geologist:{name:"地質学者",icon:"💎",desc:"ゴール成功時に小さな取り分を得る。終了時、金色クリスタル2個につき+1（最大+6）となり、採掘成果次第で炭鉱夫を上回る。",aura:"#d0a73f"},
+  collector:{name:"収集家",icon:"🎁",desc:"宝箱1枚の終了時報酬が通常+1から+2になる。",aura:"#b06f8d"}
+};
+
+const CHARACTERS={
+  violetMaid:{name:"紫影のメイド",object:"🐈‍⬛"},
+  steamGirl:{name:"蒸気坑夫",object:"👩‍🔧"},
+  lanternNun:{name:"灯火の修道女",object:"🕯️"},
+  crystalPrince:{name:"水晶の旅人",object:"🧙"},
+  moleKing:{name:"モグラ王",object:"🦫"},
+  ghostMiner:{name:"鉱山霊",object:"👻"}
+};
+
+const CARD_DEFS={
+  pathNS:{name:"縦坑道",type:"path",tier:1,paths:["n","s"],desc:"上下を結ぶ固定方向の道。",animObject:"pickaxe",animDuration:520},
+  pathEW:{name:"横坑道",type:"path",tier:1,paths:["e","w"],desc:"左右を結ぶ固定方向の道。",animObject:"pickaxe",animDuration:520},
+  pathNE:{name:"北東曲道",type:"path",tier:1,paths:["n","e"],desc:"北と東を結ぶ曲がり道。",animObject:"pickaxe",animDuration:520},
+  pathES:{name:"南東曲道",type:"path",tier:1,paths:["e","s"],desc:"東と南を結ぶ曲がり道。",animObject:"pickaxe",animDuration:520},
+  pathSW:{name:"南西曲道",type:"path",tier:1,paths:["s","w"],desc:"南と西を結ぶ曲がり道。",animObject:"pickaxe",animDuration:520},
+  pathWN:{name:"北西曲道",type:"path",tier:1,paths:["w","n"],desc:"西と北を結ぶ曲がり道。",animObject:"pickaxe",animDuration:520},
+  pathTNE:{name:"三叉坑道",type:"path",tier:2,paths:["n","e","s"],desc:"三方向を結ぶ坑道。方向は固定。",animObject:"drill",animDuration:620},
+  pathTES:{name:"三叉坑道・南",type:"path",tier:2,paths:["e","s","w"],desc:"三方向を結ぶ坑道。方向は固定。",animObject:"drill",animDuration:620},
+  pathTSW:{name:"三叉坑道・西",type:"path",tier:2,paths:["s","w","n"],desc:"三方向を結ぶ坑道。方向は固定。",animObject:"drill",animDuration:620},
+  pathTWN:{name:"三叉坑道・北",type:"path",tier:2,paths:["w","n","e"],desc:"三方向を結ぶ坑道。方向は固定。",animObject:"drill",animDuration:620},
+  pathCross:{name:"四叉坑道",type:"path",tier:3,paths:["n","e","s","w"],desc:"四方向が中央で接続する。",animObject:"gear",animDuration:650},
+  gemNS:{name:"晶脈縦坑道",type:"path",tier:2,paths:["n","s"],crystals:1,desc:"上下を結ぶ道。盤面に結晶を1個残し、地質学者の評価対象になる。",animObject:"crystal",animDuration:680},
+  gemEW:{name:"晶脈横坑道",type:"path",tier:2,paths:["e","w"],crystals:1,desc:"左右を結ぶ道。盤面に結晶を1個残し、地質学者の評価対象になる。",animObject:"crystal",animDuration:680},
+  reinforcedCross:{name:"救援四叉路",type:"path",tier:4,paths:["n","e","s","w"],crystals:1,autoReinforce:true,desc:"配置と同時に補強される四叉路。結晶を1個含む。",animObject:"shield",animDuration:900},
+  crossSplit:{name:"交差通路",type:"path",tier:4,paths:["n","e","s","w"],split:true,desc:"縦と横が立体交差し、互いには接続しない。",animObject:"gear",animDuration:780},
+  oneWayE:{name:"一方通行坑道",type:"path",tier:3,paths:["w","e"],oneWay:"e",desc:"西から東へだけ通行できる特殊坑道。",animObject:"thunder",animDuration:620},
+  warpGate:{name:"ワープゲート",type:"pathSpecial",tier:5,paths:["n","e","s","w"],desc:"到達済みの出発網に隣接してのみ置ける。設置後は新たな出発地点になる。",animObject:"portal",animDuration:1100},
+  sabotage:{name:"工具破壊",type:"targetPlayer",tier:3,desc:"相手の工具を壊し、修理されるまで道カードを使えなくする。",animObject:"bomb",animDuration:800},
+  repair:{name:"工具修理",type:"targetPlayer",tier:1,desc:"壊れた工具を修理する。",animObject:"gear",animDuration:650},
+  rescueTeam:{name:"救援班",type:"targetPlayer",tier:2,desc:"対象1人の工具破壊または牢屋を1つ解除する。両方ある場合は解除する方を選べる。",animObject:"key",animDuration:780},
+  collapse:{name:"落盤",type:"targetTile",tier:2,desc:"補強されていない通常道を1枚破壊する。",animObject:"bomb",animDuration:850},
+  xBomb:{name:"Xボム",type:"targetTile",tier:4,desc:"指定地点を中心に、十字または斜め×型の道を破壊する。",animObject:"xbomb",animDuration:1150},
+  blaster:{name:"ブラスター",type:"targetTile",tier:5,desc:"指定した縦一列または横一列の道を全破壊する。",animObject:"beam",animDuration:1250},
+  contamination:{name:"汚染カード",type:"curse",tier:1,desc:"使用不能。捨てるには、手札の他カードをすべて同時に捨てる必要がある。",animObject:"poison",animDuration:900},
+  treasure:{name:"宝箱",type:"passive",tier:4,desc:"最後まで持っていると報酬+1。収集家なら+2。",animObject:"chest",animDuration:850},
+  jail:{name:"牢屋",type:"targetPlayer",tier:5,desc:"相手を牢屋へ送る。牢屋では道カードを使えず、勝利山分けと職業の終了時ボーナスを受け取れない。途中で得た報酬は保持する。",animObject:"cage",animDuration:1250},
+  key:{name:"鍵",type:"targetPlayer",tier:2,desc:"牢屋にいるプレイヤー1人を脱出させる。",animObject:"key",animDuration:700},
+  massRepair:{name:"総点検",type:"self",tier:5,desc:"全プレイヤーの工具破壊を一斉に解除する。敵も修理されるため使用時機が重要。",animObject:"gear",animDuration:1250},
+  massEscape:{name:"一斉脱獄",type:"self",tier:5,desc:"牢屋にいる全プレイヤーを一斉に脱獄させる。敵も解放される。",animObject:"key",animDuration:1350},
+  reinforce:{name:"補強材",type:"targetTile",tier:3,desc:"通常道1枚を破壊不能にする。",animObject:"shield",animDuration:760},
+  professionSwap:{name:"職業交換",type:"targetPlayer",tier:5,desc:"選んだ相手と職業を交換する。交換した二人だけが相手の新しい職業を把握する。",animObject:"swap",animDuration:1000},
+  handSwap:{name:"手札交換",type:"targetPlayer",tier:4,desc:"このカードを消費した後、選んだ相手と残りの手札をすべて交換する。内容は公開されない。",animObject:"cards",animDuration:1050},
+  professionInspect:{name:"職業確認",type:"targetPlayer",tier:3,desc:"選んだプレイヤー1人の現在職業を自分だけが確認し、転職するまで記憶する。",animObject:"eye",animDuration:900},
+  careerChange:{name:"転職",type:"self",tier:4,desc:"自分の職業を別の職業へ変更する。",animObject:"cards",animDuration:900},
+  goalInspect:{name:"ゴール確認",type:"targetGoal",tier:3,desc:"ゴールの真偽と保管アイテム数を自分だけ確認する。保管アイテムは道をつないだ時だけ獲得できる。",animObject:"crystal",animDuration:900},
+  echoDrill:{name:"反響ドリル",type:"targetTile",tier:3,desc:"選んだ道と同じ形の古代道を、隣接する空きマスへ複製する。",animObject:"drill",animDuration:900},
+  crystalCompass:{name:"水晶羅針盤",type:"targetGoal",tier:4,desc:"選んだ未確認ゴールを1つ調査し、その後カードを1枚引く。得点は発生しない。",animObject:"crystal",animDuration:950},
+  mimicChest:{name:"ミミック宝箱",type:"self",tier:3,desc:"70%で報酬+1。失敗すると汚染カードを1枚得る。",animObject:"ghost",animDuration:980},
+  lantern:{name:"星喰い提灯",type:"targetTile",tier:4,desc:"選んだ道の周囲にある道を一巡だけ破壊不能にする。",animObject:"lantern",animDuration:1050},
+  tunnelSeed:{name:"遺跡の種",type:"targetTile",tier:4,desc:"空きマスに古代道を1枚生成する。遺跡では2枚生成する。",animObject:"vine",animDuration:1100},
+  heatLamp:{name:"融解ランプ",type:"targetTile",tier:2,desc:"凍結した道を1つ選ぶと、盤面上のすべての氷を解かす。水没マスを選んだ場合はその1マスを排水する。",animObject:"lantern",animDuration:780},
+  trackSwitch:{name:"転轍機",type:"targetTile",tier:3,desc:"盤面上の道1枚を時計回りに90度回転する。",animObject:"rail",animDuration:820},
+  chainCharge:{name:"連鎖爆薬",type:"targetTile",tier:4,desc:"選んだ道と、隣接する道を最大2枚まで連鎖破壊する。",animObject:"bomb",animDuration:1150},
+  surveyDrone:{name:"測量ドローン",type:"targetGoal",tier:3,desc:"選んだ未確認ゴールを調査し、到達済み坑道からの概算距離も確認する。",animObject:"drone",animDuration:980},
+  emergencyKit:{name:"緊急脱出キット",type:"self",tier:3,desc:"自分の牢屋と工具破壊を同時に解除する。",animObject:"key",animDuration:850},
+  cursedDice:{name:"呪鉱ダイス",type:"self",tier:3,desc:"報酬、追加ドロー、汚染、牢屋など六つの効果から一つが発生する。",animObject:"dice",animDuration:1050},
+  timeLock:{name:"時止め楔",type:"targetPlayer",tier:4,desc:"相手は次の手番にアイテムカードを使えない。",animObject:"clock",animDuration:900},
+  pocketTunnel:{name:"蜃気楼坑道",type:"pathSpecial",tier:4,paths:["n","e","s","w"],desc:"どこにでも置けるが、次の巡目開始時に消滅する仮設道。",animObject:"ghost",animDuration:950},
+  goldMagnet:{name:"黄金磁石",type:"self",tier:4,desc:"山札上から2枚を見てTierが高い方を獲得し、もう1枚を山札の底へ戻す。",animObject:"magnet",animDuration:900},
+  sealRune:{name:"封路の紋章",type:"targetTile",tier:3,desc:"道1枚を次の巡目まで通行不能にする。",animObject:"seal",animDuration:900},
+  treasureTax:{name:"採掘税",type:"targetPlayer",tier:4,desc:"報酬を持つ相手から1点徴収する。",animObject:"coins",animDuration:820},
+  pathSupply:{name:"坑道補給箱",type:"self",tier:3,desc:"山札から道カードを最大2枚探して引く。坑夫側の手詰まりを減らす補給品。",animObject:"cards",animDuration:900},
+  tunnelRush:{name:"坑道ラッシュ",type:"self",tier:5,desc:"この手番の道カード上限を合計3枚にし、山札から道カードを最大2枚探して引く。",animObject:"drill",animDuration:1200},
+  linkedExcavation2:{name:"連結掘削・二連",type:"self",tier:4,desc:"到達済み坑道の先へ、接続可能なら道を2枚まで地続きで自動配置する。",animObject:"bridge",animDuration:1150},
+  linkedExcavation3:{name:"大縦貫掘削・三連",type:"self",tier:5,desc:"到達済み坑道の先へ、接続可能なら道を3枚まで地続きで自動配置する。極めて希少。",animObject:"convoy",animDuration:1500},
+
+  supplyDrop:{name:"物資投下",type:"self",tier:2,desc:"山札からアイテムカードを最大2枚探して引く。",animObject:"cards",animDuration:820},
+  rescueContainer:{name:"救援コンテナ",type:"self",tier:3,desc:"修理・脱獄・融解・排水などの救助アイテムを最大2枚探して引く。",animObject:"chest",animDuration:900},
+  drainPump:{name:"大型排水ポンプ",type:"self",tier:3,desc:"盤面上にある水没マスをすべて除去する。氷は解かせない。",animObject:"pump",animDuration:980},
+  mixedCargo:{name:"混載トロッコ",type:"self",tier:3,desc:"道カード1枚とアイテムカード1枚を山札から探して引く。",animObject:"rail",animDuration:900},
+  surveyPack:{name:"調査鞄",type:"self",tier:3,desc:"ゴール確認や職業確認などの情報系アイテムを最大2枚探して引く。",animObject:"map",animDuration:880},
+  salvageLicense:{name:"廃材回収許可証",type:"self",tier:4,desc:"捨て札からアイテム1枚を回収する。回収対象がなければ山札からアイテム1枚を引く。",animObject:"gear",animDuration:950},
+  weatherproofNS:{name:"耐候縦坑道",type:"path",tier:3,paths:["n","s"],weatherproof:true,desc:"凍結の影響を受けない縦坑道。",animObject:"shield",animDuration:720},
+  weatherproofEW:{name:"耐候横坑道",type:"path",tier:3,paths:["e","w"],weatherproof:true,desc:"凍結の影響を受けない横坑道。",animObject:"shield",animDuration:720},
+  springJunction:{name:"補給三叉路",type:"path",tier:3,paths:["n","e","s"],drawPathOnPlace:1,desc:"配置すると山札から道カードを1枚補給する三叉路。",animObject:"bridge",animDuration:850},
+  springCross:{name:"補給四叉路",type:"path",tier:4,paths:["n","e","s","w"],drawPathOnPlace:1,desc:"配置すると道カードを1枚補給する四叉路。",animObject:"convoy",animDuration:980},
+  returnTunnel:{name:"帰還坑道",type:"path",tier:4,paths:["e","w"],returnOnDestroy:true,desc:"破壊されると持ち主の手札へ戻る横坑道。",animObject:"ghost",animDuration:900},
+
+  casinoHandle:{name:"スロット非常レバー",type:"self",tier:3,weird:true,desc:"カジノ坑道の列移動を今すぐ1回だけ起こす。",animObject:"dice",animDuration:950},
+  clockworkWinder:{name:"大歯車の巻き鍵",type:"self",tier:4,weird:true,desc:"盤面上の道をすべて時計回りに90度回転する。",animObject:"gear",animDuration:1100},
+  ghostInvitation:{name:"亡霊への招待状",type:"self",tier:4,weird:true,desc:"未確認ゴール2つの位置を入れ替える。",animObject:"ghost",animDuration:1050},
+  flashFlood:{name:"逆流バルブ",type:"self",tier:3,weird:true,desc:"空きマスに2巡で消える水没を2個発生させる。",animObject:"wave",animDuration:980},
+  iceChime:{name:"氷鳴りの鐘",type:"self",tier:3,weird:true,desc:"耐候坑道を除く道を最大2枚凍結する。",animObject:"snow",animDuration:950},
+  ruinResonator:{name:"遺跡共鳴器",type:"self",tier:4,weird:true,desc:"直前に置かれた道の周囲へ古代道を最大2枚生成する。",animObject:"vine",animDuration:1100},
+  mirrorShard:{name:"鏡鉱の破片",type:"self",tier:4,weird:true,desc:"直前に置かれた道を盤面反対側へ鏡写しで複製する。",animObject:"mirror",animDuration:1080},
+  abyssTicket:{name:"奈落レール乗車券",type:"self",tier:3,weird:true,desc:"ランダムな横1列を左右どちらかへ1マス移動する。",animObject:"rail",animDuration:980},
+  stageRoulette:{name:"ステージ・ルーレット",type:"self",tier:5,weird:true,desc:"他ステージ由来のギミックをランダムで1回だけ発動する。",animObject:"dice",animDuration:1350},
+  tunnelLottery:{name:"坑道くじ",type:"self",tier:3,weird:true,desc:"道カードを最大3枚引く代わりに汚染カードを1枚得る。",animObject:"cards",animDuration:1000},
+  itemLottery:{name:"怪しい福袋",type:"self",tier:4,weird:true,desc:"アイテムカードを最大3枚引く代わりに、手札をランダムで1枚捨てる。",animObject:"chest",animDuration:1100},
+  phaseCross:{name:"位相四叉路",type:"path",tier:4,weird:true,paths:["n","e","s","w"],expiresRounds:2,desc:"配置から2巡後に消える四叉路。",animObject:"portal",animDuration:950},
+  tideTunnel:{name:"潮呼び坑道",type:"path",tier:3,weird:true,paths:["e","w"],createsWater:true,desc:"配置時、隣接する空きマスに一時的な水没を1個発生させる。",animObject:"wave",animDuration:900},
+  frostTunnel:{name:"霜渡り坑道",type:"path",tier:3,weird:true,paths:["n","s"],freezesNeighbor:true,desc:"配置時、隣接する耐候でない道を1枚凍結する。",animObject:"snow",animDuration:900},
+  casinoTunnel:{name:"スロット坑道",type:"path",tier:4,weird:true,paths:["n","e","s"],triggersCasino:true,desc:"配置時、ランダムな縦1列を上下へ1マス動かす。",animObject:"dice",animDuration:1050},
+  ruinTunnel:{name:"遺跡喚起坑道",type:"path",tier:4,weird:true,paths:["e","s","w"],spawnsRuin:true,desc:"配置時、周囲へ古代道を1枚生成する。",animObject:"vine",animDuration:1000},
+  mirrorTunnel:{name:"鏡写し坑道",type:"path",tier:4,weird:true,paths:["s","w","n"],mirrorsOnPlace:true,desc:"配置時、接続可能なら盤面反対側へ複製される。",animObject:"mirror",animDuration:1050},
+  ghostTunnel:{name:"亡霊坑道札",type:"path",tier:5,weird:true,paths:["w","n","e"],swapsGoals:true,desc:"配置時、未確認ゴール2つの位置を入れ替える。",animObject:"ghost",animDuration:1200},
+  clockworkTunnel:{name:"時計仕掛け坑道札",type:"path",tier:5,weird:true,paths:["n","e","s","w"],rotatesBoard:true,desc:"配置時、盤面上のすべての道を90度回転する。",animObject:"gear",animDuration:1250},
+  luckyTunnel:{name:"福引坑道",type:"path",tier:4,weird:true,paths:["n","e"],drawRandomOnPlace:2,desc:"配置時、山札からカードを2枚引く。",animObject:"cards",animDuration:980},
+
+  oracleStone:{name:"深層神託石",type:"self",tier:5,desc:"未確認ゴールをすべて確認する。ただし保管品は回収せず、汚染カードを1枚得る。",animObject:"crystal",animDuration:1350}
+};
+
+const DEFAULT_ANIM_SETTINGS=Object.fromEntries(Object.entries(CARD_DEFS).map(([k,v])=>[k,{duration:v.animDuration,object:v.animObject}]));
+
+const boardEl=el("board"), handEl=el("hand"), playersEl=el("players"), logEl=el("log");
+const tooltip=el("tooltip"), toast=el("toast"), animationLayer=el("animationLayer");
+let customPortraitData=null;
+let setupStage="classic";
+let state=null;
+let animSettings=JSON.parse(JSON.stringify(DEFAULT_ANIM_SETTINGS));
+let animationSpeedMultiplier=1.8;
+let lastNarration="";
+const WEIRD_CARD_KEYS=new Set(Object.entries(CARD_DEFS).filter(([,d])=>d.weird).map(([k])=>k));
+let weirdPackEnabled=false;
+let enabledCardKeys=new Set(Object.keys(CARD_DEFS).filter(k=>k!=="crossSplit"&&!WEIRD_CARD_KEYS.has(k)));
+let enabledProfessionKeys=new Set(Object.keys(PROFESSIONS));
+let onlineSocket=null;
+let onlineState={connected:false,roomCode:null,isHost:false,players:[],rating:1000,games:0,npcCount:3,aiDifficulty:3};
+const CAMPAIGN_STORAGE_KEY="mineTraitorCampaignV10";
+const REWARD_BALANCE={
+  minerPool:n=>2*n+1,
+  saboteurPool:n=>2*n+1,
+  treasure:1,
+  collectorTreasure:2,
+  thiefSteal:1,
+  policeCap:2
+};
+const VOLUME_CONFIG={quick:{label:"さくっと",mult:.82},normal:{label:"ノーマル",mult:1.10},voluminous:{label:"ボリューミー",mult:1.65},realmine:{label:"リアルマイン",mult:2.4}};
+let localChatSequence=0;
+function loadCampaignData(){
+  try{
+    const raw=localStorage.getItem(CAMPAIGN_STORAGE_KEY),parsed=raw?JSON.parse(raw):null;
+    if(parsed&&parsed.totals&&typeof parsed.totals==="object")return {rounds:Number(parsed.rounds)||0,totals:parsed.totals}
+  }catch{}
+  return {rounds:0,totals:{}}
+}
+let campaignData=loadCampaignData();
+function saveCampaignData(){try{localStorage.setItem(CAMPAIGN_STORAGE_KEY,JSON.stringify(campaignData))}catch{}}
+function resetCampaignData(){campaignData={rounds:0,totals:{}};saveCampaignData();updateCampaignSummary()}
+function campaignTotal(name){return Number(campaignData.totals[name])||0}
+function updateCampaignSummary(){
+  const box=el("campaignSummary");if(!box)return;
+  const entries=Object.entries(campaignData.totals).filter(([,v])=>Number(v)>0).sort((a,b)=>b[1]-a[1]);
+  box.textContent=entries.length
+    ?`継続 ${campaignData.rounds}局：`+entries.slice(0,5).map(([n,v])=>`${n} ${v}`).join(" / ")
+    :"累計報酬はまだありません。"
+}
+
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function id(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
+function card(key){return {key,id:id()}}
+function def(c){return CARD_DEFS[c.key]}
+function stage(){return state.customStage||STAGES[state.stageKey]}
+const GIMMICK_LABELS={
+  free:"自由配置",
+  casino:"2巡ごと・1列を1マス移動",
+  gold:"金脈報酬",
+  ruins:"遺跡道生成",
+  frozen:"道の凍結",
+  flooded:"水没拡大",
+  clockwork:"3巡ごと・全道90度回転",
+  mirror:"鏡写し生成",
+  abyssrail:"3巡ごと・1列を1マス移動",
+  haunted:"3巡ごと・未確認ゴール2つを交換"
+};
+
+function hasGimmick(name){return (stage().gimmicks||[]).includes(name)}
+
+function showStageReveal(){
+  const s=stage();
+  el("stageRevealIcon").textContent=s.icon||"⛏️";
+  el("stageRevealTitle").textContent=s.name;
+  el("stageRevealText").innerHTML=`${s.desc||"説明のない坑道です。"}<br><span class="small">ステージを確認した後、あなたの役職を公開します。</span>`;
+  const details=[
+    `盤面 ${s.cols}×${s.rows}`,
+    `ゴール ${s.goals.length}`,
+    `ゲーム量 ${state.volumeLabel||"ノーマル"}`,
+    `山札残り ${state.deck.length}`,
+    s.wrap?"端同士が接続":"端は非接続",
+    s.free?"離れた場所へ配置可能":"接続配置が必要",
+    ...(s.gimmicks||[]).filter(g=>g!=="free").map(g=>GIMMICK_LABELS[g]||g)
+  ];
+  el("stageRevealDetails").innerHTML=details.map(x=>`<span class="reward-chip">${x}</span>`).join("");
+  el("stageOverlay").classList.remove("hidden")
+}
+function currentPlayer(){return state.players[state.currentIndex]}
+function human(){return state.players.find(p=>p.isHuman)}
+function humanIndex(){return state.players.findIndex(p=>p.isHuman)}
+function keyXY(x,y){return `${x},${y}`}
+function inBounds(x,y){return x>=0&&y>=0&&x<stage().cols&&y<stage().rows}
+function neighbor(x,y,d){
+  let [dx,dy]=VEC[d],nx=x+dx,ny=y+dy;
+  if(stage().wrap){nx=(nx+stage().cols)%stage().cols;ny=(ny+stage().rows)%stage().rows}
+  return {x:nx,y:ny,valid:inBounds(nx,ny)};
+}
+function addLog(text,cls=""){
+  lastNarration=text;const p=document.createElement("p");p.textContent="› "+text;if(cls)p.classList.add(cls);logEl.appendChild(p);logEl.scrollTop=logEl.scrollHeight;
+  if(el("privateLogCheck")?.checked&&state&&human()&&(text.includes("あなた")||text.includes(human().name)))appendSoloChat("非公開記録",text,"system")
+}
+function showToast(text){
+  toast.textContent=text;toast.classList.add("show");
+  clearTimeout(showToast.t);showToast.t=setTimeout(()=>toast.classList.remove("show"),2300)
+}
+
+function clampInt(id,min,max,fallback){const n=parseInt(el(id).value,10);return Number.isFinite(n)?Math.max(min,Math.min(max,n)):fallback}
+function pickRandomStageKey(){
+  const keys=Object.keys(STAGES).filter(k=>k!=="custom");
+  return keys[Math.floor(Math.random()*keys.length)]||"classic"
+}
+function resolveSetupStageKey(){return setupStage==="random"?pickRandomStageKey():setupStage}
+function createCustomStage(){
+  const chaos=!!el("moreChaosMode").checked;
+  const minSize=chaos?3:7,maxSize=chaos?30:15,maxGoals=chaos?20:6;
+  let cols=clampInt("customCols",minSize,maxSize,11),rows=clampInt("customRows",minSize,maxSize,9),goalCount=clampInt("customGoals",1,maxGoals,4);
+  if(el("randomSizeMode").value==="random"){cols=minSize+Math.floor(Math.random()*(maxSize-minSize+1));rows=minSize+Math.floor(Math.random()*(maxSize-minSize+1))}
+  let layout=el("randomLayoutMode").value==="random"?shuffle(["corridor","cross","corners","random"])[0]:el("customLayout").value;
+  let start,goals=[];const midX=Math.floor(cols/2),midY=Math.floor(rows/2);
+  if(layout==="corridor")start={x:0,y:midY};else start={x:midX,y:midY};
+  const candidates=[];
+  if(layout==="corridor")for(let y=0;y<rows;y++)candidates.push({x:cols-1,y});
+  else if(layout==="cross")candidates.push({x:midX,y:0},{x:cols-1,y:midY},{x:midX,y:rows-1},{x:0,y:midY});
+  else if(layout==="corners")candidates.push({x:0,y:0},{x:cols-1,y:0},{x:cols-1,y:rows-1},{x:0,y:rows-1});
+  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++)if(x!==start.x||y!==start.y)candidates.push({x,y});
+  const used=new Set([keyXY(start.x,start.y)]);
+  for(const g of candidates){if(goals.length>=goalCount)break;const k=keyXY(g.x,g.y);if(!used.has(k)){used.add(k);goals.push(g)}}
+  while(goals.length<goalCount&&chaos){const g={x:Math.floor(Math.random()*cols),y:Math.floor(Math.random()*rows)};goals.push(g)}
+  const gimmicks=[];const gm={gCasino:"casino",gGold:"gold",gRuins:"ruins",gFrozen:"frozen",gFlooded:"flooded",gClockwork:"clockwork",gMirror:"mirror",gAbyssRail:"abyssrail",gHaunted:"haunted"};
+  Object.entries(gm).forEach(([idv,name])=>{if(el(idv).checked)gimmicks.push(name)});if(el("gFree").checked)gimmicks.push("free");
+  const exactDeck=clampInt("customDeckSize",0,999,0);
+  return {name:`カスタム ${cols}×${rows}`,icon:chaos?"🧨":"🧩",desc:chaos?"制限をほぼ撤廃したモアカオス坑道。崩壊しても仕様です。":"ユーザー設定の変転坑道。",cols,rows,start,goals,wrap:el("gWrap").checked,free:el("gFree").checked,gimmicks,itemPreset:el("customItemPreset").value,initialHand:clampInt("customHand",1,chaos?30:8,5),playerCount:clampInt("playerCountSelect",3,8,5),enabledCards:[...enabledCardKeys],enabledProfessions:[...enabledProfessionKeys],volumeKey:el("customVolume").value,exactDeck,moreChaos:chaos,custom:true}
+}
+function buildDeck(goalCount,itemPreset="all",allowedCards=null,volumeKey="normal",exactDeck=0,moreChaos=false){
+  const allowed=new Set(allowedCards||[...enabledCardKeys]),cfg=VOLUME_CONFIG[volumeKey]||VOLUME_CONFIG.normal,scale=cfg.mult;
+  const keys=[];
+  const add=(k,n)=>{const d=CARD_DEFS[k];if(!allowed.has(k)||!d)return;if(!moreChaos&&(d.type==="path"||d.type==="pathSpecial")&&((d.paths||[]).length<2||d.split))return;const count=Math.max(1,Math.round(n*scale));for(let i=0;i<count;i++)keys.push(k)};
+  add("pathNS",8);add("pathEW",8);["pathNE","pathES","pathSW","pathWN"].forEach(k=>add(k,5));["pathTNE","pathTES","pathTSW","pathTWN"].forEach(k=>add(k,3));
+  add("pathCross",4);add("gemNS",4);add("gemEW",4);add("reinforcedCross",2);add("crossSplit",2);add("oneWayE",2);add("warpGate",2);add("pocketTunnel",2);
+  add("weatherproofNS",3);add("weatherproofEW",3);add("springJunction",2);add("springCross",1);add("returnTunnel",2);
+  const standard={sabotage:3,repair:7,rescueTeam:5,collapse:3,contamination:5,treasure:3,key:6,reinforce:4,goalInspect:3,professionInspect:3,handSwap:2,echoDrill:3,crystalCompass:2,lantern:2,tunnelSeed:3,heatLamp:6,trackSwitch:3,surveyDrone:2,emergencyKit:3,goldMagnet:1,pathSupply:2,tunnelRush:2,linkedExcavation2:2,linkedExcavation3:1,massRepair:1,massEscape:1,supplyDrop:2,rescueContainer:1,drainPump:4,mixedCargo:1,surveyPack:1,salvageLicense:1};
+  const chaos={xBomb:3,blaster:2,jail:2,professionSwap:2,careerChange:2,mimicChest:2,chainCharge:3,cursedDice:3,timeLock:2,sealRune:3,treasureTax:2,oracleStone:1};
+  const peaceful=new Set(["repair","rescueTeam","massRepair","massEscape","treasure","key","reinforce","goalInspect","professionInspect","echoDrill","crystalCompass","lantern","tunnelSeed","heatLamp","trackSwitch","surveyDrone","emergencyKit","goldMagnet","pathSupply","tunnelRush","linkedExcavation2","linkedExcavation3","supplyDrop","rescueContainer","drainPump","mixedCargo","surveyPack","salvageLicense"]);
+  const drawEngineCards=new Set(["goldMagnet","pathSupply","tunnelRush","supplyDrop","rescueContainer","mixedCargo","surveyPack","salvageLicense"]);
+  const weirdPool={casinoHandle:2,clockworkWinder:1,ghostInvitation:1,flashFlood:2,iceChime:2,ruinResonator:2,mirrorShard:2,abyssTicket:2,stageRoulette:1,tunnelLottery:2,itemLottery:2,phaseCross:2,tideTunnel:2,frostTunnel:2,casinoTunnel:1,ruinTunnel:2,mirrorTunnel:2,ghostTunnel:1,clockworkTunnel:1,luckyTunnel:2};
+  const addPool=(pool,m=1)=>Object.entries(pool).forEach(([k,n])=>add(k,Math.max(1,Math.round(n*m))));
+  if(itemPreset==="peaceful")Object.entries(standard).filter(([k])=>peaceful.has(k)).forEach(([k,n])=>add(k,drawEngineCards.has(k)?n:n+1));else if(itemPreset==="standard")addPool(standard);else if(itemPreset==="chaos"){addPool(standard,.7);addPool(chaos,1.5)}else{addPool(standard);addPool(chaos)}
+  if([...allowed].some(k=>WEIRD_CARD_KEYS.has(k)))addPool(weirdPool);
+  let deck=shuffle(keys.map(card));
+  if(exactDeck>0){const pool=deck.length?deck.map(c=>c.key):["pathNS","pathEW"];while(deck.length<exactDeck)deck.push(card(pool[Math.floor(Math.random()*pool.length)]));deck=shuffle(deck).slice(0,exactDeck)}
+  const maxTier=Math.max(1,...deck.map(c=>def(c).tier)),top=deck.filter(c=>def(c).tier===maxTier),reserveCount=Math.max(0,Math.min(top.length,top.length-(goalCount-1))),reserve=shuffle(top).slice(0,reserveCount),reserveIds=new Set(reserve.map(c=>c.id));deck=deck.filter(c=>!reserveIds.has(c.id));
+  if(exactDeck>0){const refill=keys.length?keys:["pathNS","pathEW"];while(deck.length<exactDeck)deck.push(card(refill[Math.floor(Math.random()*refill.length)]));deck=shuffle(deck).slice(0,exactDeck)}
+  return {deck:shuffle(deck),reserve,volumeLabel:cfg.label}
+}
+function createPlayerRecord(name,face,alignment,profession,isHuman){
+  const personas=["慎重","陽気","皮肉屋","熱血","無口","理屈屋"];
+  const p={uid:id(),name,face,alignment,profession,isHuman,hand:[],reward:0,treasures:0,goalShare:0,pathPlaced:0,goldVeinPlaced:0,demolitionUses:0,wardenJails:0,sabotageMarks:0,sabotageBonus:0,geologistBonus:0,cartographerBonusClaimed:false,freeInspectUsed:false,skipped:0,slackerDiscarded:0,slackerBonus:0,lastAction:null,goalKnowledge:{},professionKnowledge:{},grudges:{},favors:{},behaviorBeliefs:{},chatPersona:personas[Math.floor(Math.random()*personas.length)],chatHistory:[],lastChatRound:0,campaignBefore:campaignTotal(name),campaignAfter:campaignTotal(name),roundEarned:0,debuffs:{broken:false,jailed:false,pathLockedNext:false,itemLockedNext:false}};
+  Object.defineProperties(p,{broken:{get(){return this.debuffs.broken},set(v){this.debuffs.broken=!!v}},jailed:{get(){return this.debuffs.jailed},set(v){this.debuffs.jailed=!!v}},pathLockedNext:{get(){return this.debuffs.pathLockedNext},set(v){this.debuffs.pathLockedNext=!!v}},itemLockedNext:{get(){return this.debuffs.itemLockedNext},set(v){this.debuffs.itemLockedNext=!!v}}});return p
+}
+function setProfession(p,profession){
+  p.profession=profession;
+  p.alignment=profession==="saboteur"?"saboteur":"miner"
+}
+function forgetProfessionKnowledge(target){
+  if(!state||!target)return;
+  for(const observer of state.players)delete observer.professionKnowledge[target.uid]
+}
+function rememberProfession(observer,target){
+  if(observer&&target)observer.professionKnowledge[target.uid]=target.profession
+}
+function professionView(observer,target){
+  if(!target)return null;
+  if(target===observer||state.phase==="ended")return {known:true,profession:target.profession,public:true};
+  const known=observer&&observer.professionKnowledge&&observer.professionKnowledge[target.uid];
+  return known?{known:true,profession:known,public:false}:{known:false,profession:null,public:false}
+}
+function addGrudge(victim,actor,amount=1){
+  if(!victim||!actor||victim===actor)return;
+  victim.grudges[actor.uid]=(victim.grudges[actor.uid]||0)+amount
+}
+function addFavor(beneficiary,helper,amount=1){
+  if(!beneficiary||!helper||beneficiary===helper)return;
+  beneficiary.favors[helper.uid]=(beneficiary.favors[helper.uid]||0)+amount
+}
+function grudgeValue(p,target){return p&&target?(p.grudges[target.uid]||0):0}
+function favorValue(p,target){return p&&target?(p.favors[target.uid]||0):0}
+function knownAlignment(observer,target){
+  const view=professionView(observer,target);
+  if(!view.known)return null;
+  return view.profession==="saboteur"?"saboteur":"miner"
+}
+function knownAllies(p){return state.players.filter(x=>x!==p&&knownAlignment(p,x)===p.alignment)}
+function knownEnemies(p){return state.players.filter(x=>x!==p&&knownAlignment(p,x)&&knownAlignment(p,x)!==p.alignment)}
+function chooseSupportTarget(p,candidates){
+  if(!candidates.length)return null;
+  return [...candidates].sort((a,b)=>{
+    const ak=knownAlignment(p,a)===p.alignment?10:0,bk=knownAlignment(p,b)===p.alignment?10:0;
+    return (bk+favorValue(p,b))-(ak+favorValue(p,a))
+  })[0]
+}
+function chooseGrudgeTarget(p,candidates,requireTrigger=false){
+  const safe=candidates.filter(x=>knownAlignment(p,x)!==p.alignment);
+  if(!safe.length)return null;
+  const ranked=[...safe].sort((a,b)=>{
+    const ae=knownAlignment(p,a)&&knownAlignment(p,a)!==p.alignment?8:0;
+    const be=knownAlignment(p,b)&&knownAlignment(p,b)!==p.alignment?8:0;
+    return (be+grudgeValue(p,b))-(ae+grudgeValue(p,a))
+  });
+  const top=ranked[0],score=grudgeValue(p,top),difficulty=state.aiDifficulty||3;
+  if(score>0&&Math.random()<(0.12+difficulty*.14))return top;
+  if(requireTrigger)return null;
+  return difficulty>=4?ranked[Math.floor(Math.random()*Math.min(2,ranked.length))]:safe[Math.floor(Math.random()*safe.length)]
+}
+function observePublicBehavior(actor,kind,amount=1){
+  if(!state||!actor)return;
+  const weights={construct:-1.2,progress:-2.2,deadend:1.5,destroy:2.4,harm:2.1,help:-1.8,lie:.5};
+  for(const observer of state.players){if(observer===actor||observer.isHuman)continue;const noise=(Math.random()-.5)*(6-(state.aiDifficulty||3))*.35;observer.behaviorBeliefs[actor.uid]=(observer.behaviorBeliefs[actor.uid]||0)+(weights[kind]||0)*amount+noise}
+}
+function inferredAlignment(observer,target){
+  const known=knownAlignment(observer,target);if(known)return known;
+  const s=observer?.behaviorBeliefs?.[target.uid]||0,threshold=Math.max(2.4,5.5-(state.aiDifficulty||3)*.55);
+  if(s>=threshold)return "saboteur";if(s<=-threshold)return "miner";return null
+}
+function inferredAllies(p){return state.players.filter(x=>x!==p&&inferredAlignment(p,x)===p.alignment)}
+function inferredEnemies(p){return state.players.filter(x=>x!==p&&inferredAlignment(p,x)&&inferredAlignment(p,x)!==p.alignment)}
+function networkProgressMetric(){
+  if(!state)return 0;let best=Infinity;for(const key of state.reachable){const [x,y]=key.split(",").map(Number);for(const g of stage().goals)best=Math.min(best,Math.abs(g.x-x)+Math.abs(g.y-y))}return Number.isFinite(best)?-best:-999
+}
+function appendSoloChat(name,text,cls=""){
+  const box=el("soloChatLog");if(!box)return;const p=document.createElement("p");if(cls)p.className=cls;p.textContent=`${name}: ${text}`;box.appendChild(p);box.scrollTop=box.scrollHeight
+}
+const NPC_CHAT_PARTS={
+  opener:["うん","さて","よし","一応言っておくと","気のせいならいいけど","盤面を見る限り","落ち着いて考えると","先に共有しておく","ここだけの話","今のうちに確認しよう","率直に言う","妙だな","悪くない","焦る必要はない","坑道は黙っているけど"],
+  turn:["この手番は接続を優先する","道の向きを一度整理する","手札を腐らせないよう動く","ゴール側へ一歩進めたい","分岐を作って保険をかける","無理な延伸は避ける","誰かの意図も見ながら掘る","ここで手札を整えるのもありだ","救助手段を温存する","終盤の山分けまで計算しておく","一本道にはしない","壊されにくい形を作る"],
+  good:["今の接続は素直で助かる","前進が見える一手だ","その道なら次の人も続けやすい","盤面が少し呼吸できるようになった","ゴールへ近づいた","余計な口が少なくてきれいだ","支援として十分価値がある","その判断には乗れる","今のところ筋が通っている","この流れは維持したい"],
+  bad:["今の動きは警戒しておく","盤面が急に苦しくなった","その破壊は説明が欲しい","偶然にしては嫌な位置だ","道筋が一つ消えた","誰が得をしたか考えた方がいい","今の一手は後で響く","手札事故だけでは説明しづらい","少し疑いが増えた","救助を急いだ方がよさそうだ"],
+  ambient:["金鉱は近いほど静かになるらしい","この坑道、風向きが変だ","手札の枚数は嘘をつかない","一本道は壊されると脆い","誰か修理札を残している？","ゴール情報は鵜呑みにしない方がいい","水没は時間で引く。焦って全部壊す必要はない","融解ランプは水にも氷にも使える","終盤の牢屋は報酬配分まで変える","道を置かない人にも事情はある","でも事情が長すぎる人は怪しい","分岐は保険、行き止まりは疑惑だ","山札が減るほど一手の価値が上がる","クリスタルは金色のやつだけ数える","ワープゲートも今は壊せる","救助した恩は忘れない方がいい","高Tier札を抱えたまま終わるのも損だ","交換ドローは手札を細らせる","道の口が合っていても意図までは合わない","誰かが嘘をついていても盤面は正直だ","ゴールを見た人は位置まで言ってほしい","同じ職業でも報酬では競争相手だ","カジノの列移動は1マスだけだ","水は三巡で引く","異常カードを入れたなら平穏は諦めよう","壊す前に代わりの道を考えてほしい","手札交換は枚数差が大きいほど怖い","職業確認は情報そのものが武器になる","ボスの取り分は少し多い","地質学者は道上の金色を見ている","怠け者は捨て札を数えている","お邪魔者も仲間同士では山分けだ","終盤ほど善意と打算が似てくる"],
+  close:["と思う","でどうだろう","念のため共有する","異論があるなら聞く","次の人も見ておいて","断定はしない","今はそう判断している","まあ、掘れば分かる","忘れないで","少なくとも私はそう動く","この話は記録しておこう","反対意見も歓迎する"]
+};
+function npcPick(p,list){
+  const history=p.chatHistory||[];let choice=list[Math.floor(Math.random()*list.length)];for(let i=0;i<6&&history.includes(choice);i++)choice=list[Math.floor(Math.random()*list.length)];history.push(choice);if(history.length>18)history.shift();p.chatHistory=history;return choice
+}
+function npcPhrase(p,type,data={}){
+  if(type==="goal")return data.claim;if(type==="reply")return data.reply;
+  const core=NPC_CHAT_PARTS[type]||NPC_CHAT_PARTS.ambient;
+  if(p.chatPersona==="無口")return npcPick(p,core).replace(/。.*$/,"")+"。";
+  const opener=Math.random()<.62?npcPick(p,NPC_CHAT_PARTS.opener)+"、":"";
+  const closer=Math.random()<.55?" "+npcPick(p,NPC_CHAT_PARTS.close)+"。":"。";
+  let line=opener+npcPick(p,core)+closer;
+  if(p.chatPersona==="陽気"&&Math.random()<.35)line+=" さあ、掘ろう。";
+  if(p.chatPersona==="皮肉屋"&&Math.random()<.35)line+=" 善意なら、だけど。";
+  if(p.chatPersona==="熱血"&&Math.random()<.35)line+=" 止まるな。";
+  if(p.chatPersona==="理屈屋"&&Math.random()<.35)line+=" 期待値の話だ。";
+  return line
+}
+function maybeNpcChat(type,actor=null,data={}){
+  if(!state||state.phase==="ended")return;
+  const npcs=state.players.filter(p=>!p.isHuman);if(!npcs.length)return;
+  let speaker=actor&&!actor.isHuman?actor:npcs[Math.floor(Math.random()*npcs.length)];
+  if(type==="ambient"&&Math.random()>.62)return;
+  appendSoloChat(speaker.name,npcPhrase(speaker,type,data),data.lie?"lie":"")
+}
+function goalChatLabel(goal){for(let y=0;y<stage().rows;y++)for(let x=0;x<stage().cols;x++)if(state.board[y][x]===goal){const vertical=y<stage().rows/3?"上":y>stage().rows*2/3?"下":"中央";return `${vertical}側（${x+1},${y+1}）`}return "位置不明"}
+function npcShareGoal(p,goal){
+  const truth=goal.gold,willLie=p.alignment==="saboteur"?Math.random()<.72:Math.random()<.12;
+  const claim=willLie?!truth:truth;
+  const labels=claim?"本物のゴールだと思う":"偽物だった";
+  appendSoloChat(p.name,`${goalChatLabel(goal)}のゴールは${labels}。${willLie?"信じるかは任せる。":"道を組む参考にして。"}`,willLie?"lie":"");
+  if(willLie)observePublicBehavior(p,"lie",1)
+}
+function processSoloMessage(text){
+  const me=human();appendSoloChat(me?.name||"あなた",text,"me");if(!state)return;
+  const npcs=state.players.filter(p=>!p.isHuman);if(!npcs.length)return;
+  const lower=text.toLowerCase();let candidates=npcs;
+  const named=npcs.find(p=>text.includes(p.name));if(named)candidates=[named];
+  const speaker=candidates[Math.floor(Math.random()*candidates.length)];let reply=npcPhrase(speaker,"ambient");
+  if(/誰|怪し|お邪魔|敵|信用/.test(text)){const suspects=state.players.filter(x=>x!==speaker).sort((a,b)=>(speaker.behaviorBeliefs[b.uid]||0)-(speaker.behaviorBeliefs[a.uid]||0));reply=suspects[0]?`${suspects[0].name}の行動は警戒している。ただ、職業確認までは断定しない。`:"まだ疑う材料が足りない。次の配置を見たい。"}
+  else if(/ゴール|本物|偽物|上|下|中央/.test(text)){const known=stage().goals.map(g=>state.board[g.y][g.x]).filter(g=>speaker.goalKnowledge[g.id]);if(known.length){const g=known[Math.floor(Math.random()*known.length)],lie=speaker.alignment==="saboteur"&&Math.random()<.55,claim=lie?!g.gold:g.gold;reply=`${goalChatLabel(g)}は、${claim?"本物らしい":"偽物らしい"}。${lie?"信じすぎないで。":"私はこの情報で動く。"}`;}else reply="私はまだゴールを直接確認していない。確認札があれば使う。"}
+  else if(/助け|修理|牢屋|鍵|融解|水|氷/.test(text))reply=speaker.hand.some(c=>["repair","key","rescueTeam","heatLamp","emergencyKit"].includes(c.key))?"救助手段は持っている。状況が続くなら優先候補にする。":"今は対応札がない。水なら三巡待つ手もある。";
+  else if(/道|掘|進|接続|分岐/.test(text))reply=speaker.alignment==="saboteur"?(Math.random()<.55?"急ぎすぎると壊される。分岐を増やす方がいい。":"前へ伸ばせる形を探す。"):`到達済みの先へ、次の人が続けやすい道を置きたい。`;
+  else if(/カード|手札|交換|引/.test(text))reply=`私は手札${speaker.hand.length}枚。交換ドローは便利だけど、総枚数は減る。補給札があれば先に使う。`;
+  else if(/報酬|山分け|独占|ボス/.test(text))reply="勝利が先。それでも終盤は分配人数と牢屋を見た方がいい。善意だけで山分けは決まらない。";
+  else if(/こんにちは|よろしく|やあ|こんばんは|おはよう/.test(text))reply=`よろしく。私は${speaker.chatPersona}寄りだけど、必要なら相談する。`;
+  else if(/ありがとう|助かった/.test(text))reply="覚えておく。次に困っていたら、手札と陣営次第で返す。";
+  else if(/嘘|本当|信じ/.test(text))reply="チャットは証拠にならない。盤面と公開行動を一緒に見て。";
+  setTimeout(()=>appendSoloChat(speaker.name,reply),180+Math.random()*320)
+}
+function rememberGoal(p,goal){
+  if(!p||!goal||goal.kind!=="goal")return;
+  p.goalKnowledge[goal.id]={gold:!!goal.gold,stashCount:(goal.stash||[]).length}
+}
+function knowsGoal(p,goal){
+  return !!(goal&&goal.kind==="goal"&&(goal.revealed||(p&&p.goalKnowledge&&p.goalKnowledge[goal.id])))
+}
+function goalView(goal,p){
+  if(goal.revealed)return {known:true,gold:!!goal.gold,public:true};
+  const k=p&&p.goalKnowledge&&p.goalKnowledge[goal.id];
+  return k?{known:true,gold:!!k.gold,public:false}:{known:false,gold:false,public:false}
+}
+function inspectGoalPrivately(goal,p){
+  rememberGoal(p,goal);
+  const count=goal.gold?0:(goal.stash||[]).length;
+  const stashText=goal.gold?"":` 保管アイテムは${count}枚。道を実際につないだ時だけ獲得できる。`;
+  return {gold:!!goal.gold,stashCount:count,stashText}
+}
+
+function createPlayers(st,playerCount=5,onlineNames=[]){
+  const baseNames=["あなた","ガルド","ミラ","ボルク","セナ","ルド","アイラ","ノクス"],faces=["🐈‍⬛","🧔","👩‍🦰","🧙‍♂️","👩‍🔧","🧑‍🚀","🧝","🤖"];
+  const saboteurCount=playerCount<=4?1:playerCount<=7?2:3,allowed=[...enabledProfessionKeys].filter(k=>PROFESSIONS[k]);if(!allowed.includes("miner"))allowed.unshift("miner");if(!allowed.includes("saboteur"))allowed.unshift("saboteur");
+  const maxPlain=Math.max(0,playerCount-saboteurCount),minPlain=Math.min(maxPlain,Math.max(2,Math.ceil(playerCount*.5))),jobs=[...Array(saboteurCount).fill("saboteur"),...Array(minPlain).fill("miner")];
+  if(playerCount>=5&&allowed.includes("boss")&&jobs.length<playerCount)jobs.push("boss");
+  const others=allowed.filter(k=>!["miner","saboteur","boss"].includes(k)&&(st.free?k!=="warper":true));while(jobs.length<playerCount)jobs.push(others.length?others[Math.floor(Math.random()*others.length)]:"miner");
+  const shuffled=shuffle(jobs),players=[];for(let i=0;i<playerCount;i++){const name=onlineNames[i]||baseNames[i]||`坑夫${i+1}`,profession=shuffled[i];players.push(createPlayerRecord(name,faces[i%faces.length],profession==="saboteur"?"saboteur":"miner",profession,i===0))}return shuffle(players)
+}
+function makeState(stageKey,characterKey,portraitSide,customStage=null,onlineNames=[]){
+  const st=customStage||STAGES[stageKey],allowedCards=st.enabledCards||[...enabledCardKeys],volumeKey=st.volumeKey||el("gameVolumeSelect")?.value||"normal";
+  const mapFactor=Math.max(1,(st.cols*st.rows)/(11*7)),playerFactor=Math.max(1,(st.playerCount||clampInt("playerCountSelect",3,8,5))/5),autoExtra=Math.sqrt(mapFactor*playerFactor);
+  const cfg=VOLUME_CONFIG[volumeKey]||VOLUME_CONFIG.normal,derivedKey=volumeKey;let exact=Number(st.exactDeck)||0;
+  const made=buildDeck(st.goals.length,st.itemPreset||"all",allowedCards,derivedKey,exact,!!st.moreChaos);
+  if(!exact&&autoExtra>1.05){const baseKeys=made.deck.map(c=>c.key),target=Math.round(made.deck.length*Math.min(1.8,autoExtra));while(made.deck.length<target&&baseKeys.length)made.deck.push(card(baseKeys[Math.floor(Math.random()*baseKeys.length)]));made.deck=shuffle(made.deck)}
+  const board=Array.from({length:st.rows},()=>Array(st.cols).fill(null));board[st.start.y][st.start.x]={kind:"start",paths:DIRS.slice(),id:id()};
+  const goldIndex=Math.floor(Math.random()*st.goals.length),fakeIndices=st.goals.map((_,i)=>i).filter(i=>i!==goldIndex),stashes=Object.fromEntries(fakeIndices.map(i=>[i,[]]));made.reserve.forEach((c,i)=>{if(fakeIndices.length)stashes[fakeIndices[i%fakeIndices.length]].push(c)});
+  st.goals.forEach((g,i)=>{board[g.y][g.x]={kind:"goal",goalIndex:i,gold:i===goldIndex,revealed:false,claimed:false,stash:stashes[i]||[],paths:goalPathsFor(st,g),id:id()}});
+  if(st.enabledProfessions)enabledProfessionKeys=new Set(st.enabledProfessions);const playerCount=st.playerCount||clampInt("playerCountSelect",3,8,5),players=createPlayers(st,playerCount,onlineNames),initialHand=st.initialHand||5;players.forEach(p=>{for(let i=0;i<initialHand;i++)draw(p,made.deck)});
+  if((st.gimmicks||[]).some(g=>g==="flooded"||g==="frozen")&&allowedCards.some(k=>k==="heatLamp"||k==="drainPump")){
+    const receivers=[players.find(p=>p.isHuman),...shuffle(players.filter(p=>!p.isHuman)).slice(0,1)].filter(Boolean);
+    for(const p of receivers){const preferred=(st.gimmicks||[]).includes("flooded")&&allowedCards.includes("drainPump")?"drainPump":"heatLamp";if(p.hand.some(c=>c.key===preferred))continue;let idx=made.deck.findIndex(c=>c.key===preferred);const counter=idx>=0?made.deck.splice(idx,1)[0]:card(preferred);const swap=p.hand.findIndex(c=>def(c).tier<=2&&c.key!==preferred);if(swap>=0)made.deck.push(p.hand.splice(swap,1)[0]);p.hand.push(counter)}
+    made.deck=shuffle(made.deck)
+  }
+  return {stageKey,customStage,board,players,deck:made.deck,currentIndex:0,round:1,selected:null,rotation:0,exchangeMode:false,exchangeSelected:new Set(),phase:"playing",reachable:new Set(),goldIndex,characterKey,portraitSide,volumeKey,volumeLabel:cfg.label,aiDifficulty:clampInt("aiDifficultySelect",1,5,3),pathUsed:false,pathUseCount:0,pathLimit:1,itemUsed:false,turnActionTaken:false,exchangeCountThisTurn:0,discardCountThisTurn:0,lastPlaced:null,winner:null,victoryPool:0,campaignCommitted:false,scrap:[]}
+}
+function goalPathsFor(st,g){
+  const dx=st.start.x-g.x,dy=st.start.y-g.y;
+  if(Math.abs(dx)>=Math.abs(dy)&&dx!==0)return [dx>0?"e":"w"];
+  if(dy!==0)return [dy>0?"s":"n"];
+  return ["w"]
+}
+
+function draw(p,deck){
+  if(deck.length)p.hand.push(deck.pop())
+}
+
+function beginTurn(){
+  if(state.phase!=="playing")return;
+  const p=currentPlayer();
+  state.pathLimit=p.pathLockedNext?0:1;state.pathUseCount=0;state.pathUsed=state.pathLimit===0;state.itemUsed=!!p.itemLockedNext;
+  if(p.pathLockedNext){p.pathLockedNext=false;addLog(`${p.name} は道カードを封じられている。`,"bad")}
+  if(p.itemLockedNext){p.itemLockedNext=false;addLog(`${p.name} はアイテムカードを封じられている。`,"bad")}
+  p.freeInspectUsed=false;delete p._profitPlan;state.selected=null;state.rotation=0;state.exchangeMode=false;state.exchangeSelected.clear();state.turnActionTaken=false;state.exchangeCountThisTurn=0;state.discardCountThisTurn=0;
+  if(state.deck.length){draw(p,state.deck);addLog(`${p.name} は手番開始時にカードを1枚引いた。`)}
+  renderAll();
+  if(p.hand.length===0&&state.deck.length===0){
+    addLog(`${p.name} は手札も山札も空のため、自動的に手番を飛ばした。`,"important");
+    if(checkEnd())return;
+    setTimeout(advanceTurn,500);return
+  }
+  if(!p.isHuman)setTimeout(aiTurn,650+Math.random()*450);
+  else{addLog(`あなたの手番。道は最大${state.pathLimit}枚、アイテムは1枚使用できます。`,"important");maybeNpcChat("ambient");sound("turn")}
+}
+
+function startGame(){
+  if(!el("carryRewardsCheck").checked){resetCampaignData();el("carryRewardsCheck").checked=true}
+  const character=el("characterSelect").value;
+  const side=el("portraitSide").value;
+  const resolvedStageKey=resolveSetupStageKey();
+  let custom=resolvedStageKey==="custom"?createCustomStage():null;
+  if(resolvedStageKey!=="custom"){custom=clone(STAGES[resolvedStageKey]);custom.playerCount=clampInt("playerCountSelect",3,8,5);custom.enabledCards=[...enabledCardKeys];custom.enabledProfessions=[...enabledProfessionKeys];}
+  state=makeState(resolvedStageKey,character,side,custom);
+  state.reachable=computeReachable();
+  el("setupOverlay").classList.add("hidden");renderAll();
+  const me=human();
+  el("revealIcon").textContent=me.profession==="saboteur"?"🧨":"⛏️";
+  el("revealTitle").textContent=me.profession==="saboteur"?"お邪魔者":"坑夫陣営";
+  el("revealText").innerHTML=`${me.alignment==="miner"?"真のゴールへ道をつなげば勝利です。":"山札が尽きるまで真のゴールへの到達を阻めば勝利です。"}<br>職業はランダムに決まりました。あなたは <b>${PROFESSIONS[me.profession].name}</b>。${PROFESSIONS[me.profession].desc}`;
+  showStageReveal();
+  appendSoloChat("SYSTEM",`ステージ「${stage().name}」で開始。NPCは外部AIを使わず、ルールベースで会話します。`,"system");
+  addLog(`${setupStage==="random"?"ランダム抽選の結果、":""}ステージ「${stage().name}」が選ばれた。順番と全員の職業はランダム。相手の職業は非公開。`,"important")
+}
+
+function renderAll(){
+  if(!state)return;
+  state.reachable=computeReachable();
+  renderBoard();renderHand();renderPlayers();renderRole();renderCharacter();updateHud();updateControls()
+}
+
+function updateHud(){
+  el("stageHud").textContent=stage().name;el("deckCount").textContent=state.deck.length;el("roundCount").textContent=state.round;el("currentName").textContent=currentPlayer().name;el("volumeHud").textContent=state.volumeLabel||"ノーマル";
+  el("pathSlot").textContent=`道 ${state.pathUseCount}/${state.pathLimit}`;el("itemSlot").textContent=state.itemUsed?"アイテム 使用済み":"アイテム 1枚"
+}
+function renderRole(){
+  const me=human(),r=me.profession!=="saboteur";
+  el("roleName").textContent=r?"坑夫陣営":"お邪魔者";
+  el("roleDesc").textContent=r?"真のゴールへ到達させる。":"職業そのものが敵対役。真のゴールへの到達を阻む。";
+  el("roleWatermark").textContent=r?"⛏":"☠";
+  el("professionTags").innerHTML=
+    `<span class="reward-chip">${PROFESSIONS[me.profession].icon} ${PROFESSIONS[me.profession].name}</span>`+
+    `<span class="reward-chip">今局 ${me.reward+me.treasures}</span><span class="reward-chip">累計見込 ${me.campaignBefore+me.reward+me.treasures}</span>`+
+    `${me.profession==="slacker"?`<span class="reward-chip">廃棄実績 ${me.slackerDiscarded}/5</span>`:""}`+
+    `${me.profession==="geologist"?`<span class="reward-chip">金色クリスタル ${boardCrystalCount()}個</span>`:""}`+
+    `<div class="status-list">${debuffBadges(me).join("")}</div>`
+}
+
+function renderCharacter(){
+  const me=human(),ch=CHARACTERS[state.characterKey],job=PROFESSIONS[me.profession];
+  el("gameShell").classList.toggle("portrait-right",state.portraitSide==="right");
+  el("characterName").textContent=ch.name;
+  el("characterJob").textContent=`${job.icon} ${job.name}`;
+  el("professionAura").style.background=job.aura;
+  if(customPortraitData){
+    el("characterImage").src=customPortraitData;el("characterImage").classList.remove("hidden");el("objectCharacter").classList.add("hidden")
+  }else{
+    el("objectCharacter").textContent=ch.object;el("objectCharacter").classList.remove("hidden");el("characterImage").classList.add("hidden")
+  }
+}
+
+function debuffBadges(p){
+  const out=[];
+  if(p.jailed)out.push('<span class="status-badge bad" title="牢屋にいるため道カードを使用できず、終了報酬も受け取れません">🔒 牢屋</span>');
+  if(p.broken)out.push('<span class="status-badge bad" title="工具が壊れているため道カードを使用できません">🛠 工具破損</span>');
+  if(p.pathLockedNext)out.push('<span class="status-badge warn" title="次の手番は道カードを使用できません">🚧 道封印</span>');
+  if(p.itemLockedNext)out.push('<span class="status-badge warn" title="次の手番はアイテムカードを使用できません">⏳ 道具封印</span>');
+  if(!out.length)out.push('<span class="status-badge good" title="行動を妨げる状態異常はありません">✓ 正常</span>');
+  return out
+}
+function debuffCount(p){return [p.jailed,p.broken,p.pathLockedNext,p.itemLockedNext].filter(Boolean).length}
+
+function renderPlayers(){
+  playersEl.innerHTML="";
+  const observer=human();
+  state.players.forEach((p,i)=>{
+    const row=document.createElement("div"),count=debuffCount(p),view=professionView(observer,p);
+    row.className="player"+(i===state.currentIndex?" active":"")+(p.jailed?" jailed":"")+(count?" has-debuff":"");
+    const job=view.known?`<span class="${view.public?"":"known-job"}">${PROFESSIONS[view.profession].name}${view.public?"":"（あなたのみ確認）"}</span>`:"職業不明";
+    const side=state.phase==="ended"?(p.profession==="saboteur"?"お邪魔者":"坑夫陣営"):"陣営不明";
+    row.innerHTML=`<div class="avatar">${p.face}</div><div><div class="player-name">${p.name}${count?`<span class="status-count" title="デバフ数">${count}</span>`:""}</div><div class="player-meta">${side} / ${job}</div><div class="status-list">${debuffBadges(p).join("")}</div></div><div class="player-stats"><span class="hand-count">手札 ${p.hand.length}</span><br>今局 ${p.reward+p.treasures}<br>累計見込 ${p.campaignBefore+p.reward+p.treasures}</div>`;
+    playersEl.appendChild(row)
+  })
+}
+
+function tilePorts(tile){
+  if(tile.kind==="hazard"||(tile.frozen&&!tile.weatherproof)||(tile.sealedUntil&&tile.sealedUntil>=state.round))return [];
+  if(tile.kind==="start")return DIRS.slice();
+  if(tile.kind==="goal")return tile.paths||DIRS.slice();
+  return rotatePaths(tile.paths||[],tile.rotation||0)
+}
+function rotatePaths(paths,r){return paths.map(d=>DIRS[(DIRS.indexOf(d)+r)%4])}
+function tileHtml(tile){
+  if(tile.kind==="hazard")return `<div class="tile hazard ${tile.hazardType||"water"}"></div>`;
+  if(tile.kind==="start")return `<div class="tile start"><span>⛏</span>${DIRS.map(d=>`<span class="path ${d}"></span>`).join("")}<span class="path c"></span></div>`;
+  if(tile.kind==="goal"){
+    const view=goalView(tile,state?human():null);
+    const cls=!view.known?"unknown":view.gold?"gold":"fake";
+    return `<div class="tile goal ${cls}" title="${view.known?(view.public?"公開済み":"あなただけが確認済み"):"未確認"}"></div>`
+  }
+  const ports=tilePorts(tile);
+  const cls=`${tile.ancient?" ancient":""}${tile.warp?" warp":""}${tile.weatherproof?" weatherproof":""}${tile.returnOnDestroy?" returning":""}`;
+  const split=tile.split?`<span class="split-marker"><span class="bridge"></span></span>`:"";
+  const arrow=tile.oneWay?`<span class="oneway">${tile.oneWay==="e"?"→":tile.oneWay==="s"?"↓":tile.oneWay==="w"?"←":"↑"}</span>`:"";
+  const crystals=tile.crystals?`<span class="crystal-mark">${"♦".repeat(Math.min(3,tile.crystals))}</span>`:"";
+  return `<div class="tile${cls}"><span class="path c"></span>${ports.map(d=>`<span class="path ${d}"></span>`).join("")}${split}${arrow}${crystals}</div>`
+}
+
+function renderBoard(){
+  const st=stage();
+  boardEl.style.gridTemplateColumns=`repeat(${st.cols},var(--cell))`;
+  boardEl.style.gridTemplateRows=`repeat(${st.rows},var(--cell))`;
+  boardEl.style.width=`calc(${st.cols} * var(--cell) + ${st.cols-1} * var(--gap) + 28px)`;
+  boardEl.style.height=`calc(${st.rows} * var(--cell) + ${st.rows-1} * var(--gap) + 28px)`;
+  boardEl.innerHTML="";
+  const selected=getSelectedCard();
+  for(let y=0;y<st.rows;y++)for(let x=0;x<st.cols;x++){
+    const c=document.createElement("div");c.className="cell";
+    c.dataset.x=x;c.dataset.y=y;
+    const tile=state.board[y][x];
+    if(tile)c.innerHTML=tileHtml(tile);
+    if(tile&&state.reachable.has(keyXY(x,y)))c.classList.add("reachable");
+    if(tile?.reinforced)c.classList.add("reinforced");
+    if(tile?.ancient)c.classList.add("ruin-born");
+    if(tile?.frozen)c.classList.add("frozen");
+    if(tile?.sealedUntil&&tile.sealedUntil>=state.round)c.classList.add("sealed");
+    if(currentPlayer().isHuman&&state.phase==="playing"&&selected){
+      if(isValidTarget(selected,x,y))c.classList.add(targetClass(selected,x,y))
+    }
+    c.addEventListener("click",()=>onCellClick(x,y));
+    boardEl.appendChild(c)
+  }
+}
+
+function targetClass(c,x,y){
+  const t=state.board[y][x],d=def(c);
+  if(d.type==="path"||d.type==="pathSpecial"||d.type==="targetGoal"||c.key==="tunnelSeed")return "valid";
+  return t?"target":"valid"
+}
+function isValidTarget(c,x,y){
+  const d=def(c),t=state.board[y][x],p=human();
+  if(d.type==="path")return canPlacePath(p,x,y,d,state.rotation,false);
+  if(d.type==="pathSpecial"&&c.key==="warpGate")return canPlaceWarpGate(x,y);
+  if(c.key==="pocketTunnel")return canPlacePath(p,x,y,{paths:["n","e","s","w"],split:false},0,false);
+  if(c.key==="collapse")return !!(t&&t.kind==="path"&&!t.reinforced);
+  if(c.key==="xBomb"||c.key==="blaster")return !!t;
+  if(c.key==="reinforce")return !!(t&&t.kind==="path"&&!t.reinforced);
+  if(["goalInspect","crystalCompass","surveyDrone"].includes(c.key))return !!(t&&t.kind==="goal"&&!knowsGoal(human(),t));
+  if(c.key==="echoDrill")return !!(t&&t.kind==="path");
+  if(c.key==="lantern")return !!(t&&t.kind==="path");
+  if(c.key==="tunnelSeed")return !t;
+  if(c.key==="heatLamp")return !!(t&&(t.kind==="hazard"||t.frozen));
+  if(c.key==="trackSwitch")return !!(t&&t.kind==="path");
+  if(c.key==="chainCharge")return !!(t&&t.kind==="path");
+  if(c.key==="sealRune")return !!(t&&t.kind==="path");
+  return false
+}
+
+function canPlacePath(p,x,y,d,rotation,forced){
+  if(!inBounds(x,y)||state.board[y][x])return false;
+  if(p.jailed||p.broken)return false;
+  if(stage().moreChaos)return true;
+  const ports=rotatePaths(d.paths||[],rotation);
+  if(ports.length<2||d.split)return false;
+  let touches=false,connects=false,reachableConnect=false,goalMatch=false;
+  for(const dir of DIRS){
+    const n=neighbor(x,y,dir);if(!n.valid)continue;
+    const nt=state.board[n.y][n.x];if(!nt)continue;
+    touches=true;
+    const nPorts=tilePorts(nt);
+    const match=ports.includes(dir)&&nPorts.includes(OPP[dir]);
+    const mismatch=ports.includes(dir)!==nPorts.includes(OPP[dir]);
+    if(mismatch)return false;
+    if(match){
+      connects=true;
+      if(nt.kind==="goal")goalMatch=true;
+      else if(state.reachable.has(keyXY(n.x,n.y)))reachableConnect=true
+    }
+  }
+  if(goalMatch&&!reachableConnect)return false;
+  if(forced)return connects||stage().free||p.profession==="warper";
+  if(stage().free||p.profession==="warper")return !goalMatch||reachableConnect;
+  return touches&&connects&&reachableConnect
+}
+
+function canPlaceWarpGate(x,y){
+  if(!inBounds(x,y)||state.board[y][x]||human().jailed||human().broken)return false;
+  if(stage().moreChaos)return true;
+  for(const d of DIRS){
+    const n=neighbor(x,y,d);if(!n.valid)continue;
+    const nt=state.board[n.y][n.x];
+    if(nt&&nt.kind!=="goal"&&state.reachable.has(keyXY(n.x,n.y))&&tilePorts(nt).includes(OPP[d]))return true
+  }
+  return false
+}
+
+function internalExits(tile,entry){
+  const ports=tilePorts(tile);
+  if(tile.kind==="start"||tile.warp)return ports;
+  if(tile.kind==="goal")return [];
+  if(tile.split){
+    if(entry==="n")return ["s"];if(entry==="s")return ["n"];if(entry==="e")return ["w"];if(entry==="w")return ["e"];
+    return []
+  }
+  if(tile.oneWay){
+    if(entry===OPP[tile.oneWay])return [tile.oneWay];
+    return []
+  }
+  return ports.filter(d=>d!==entry)
+}
+
+function computeReachable(){
+  const st=stage(),seenStates=new Set(),cells=new Set(),queue=[];
+  const sources=[st.start];
+  for(let y=0;y<st.rows;y++)for(let x=0;x<st.cols;x++)if(state?.board[y][x]?.warp)sources.push({x,y});
+  for(const s of sources){
+    const tile=state.board[s.y][s.x];if(!tile)continue;
+    cells.add(keyXY(s.x,s.y));
+    for(const d of tilePorts(tile))queue.push({x:s.x,y:s.y,exit:d})
+  }
+  while(queue.length){
+    const q=queue.shift(),sk=`${q.x},${q.y},${q.exit}`;if(seenStates.has(sk))continue;seenStates.add(sk);
+    const n=neighbor(q.x,q.y,q.exit);if(!n.valid)continue;
+    const nt=state.board[n.y][n.x];if(!nt||!tilePorts(nt).includes(OPP[q.exit]))continue;
+    cells.add(keyXY(n.x,n.y));
+    const entry=OPP[q.exit];
+    for(const ex of internalExits(nt,entry))queue.push({x:n.x,y:n.y,exit:ex})
+  }
+  return cells
+}
+
+function renderHand(){
+  handEl.innerHTML="";
+  const me=human();
+  me.hand.forEach((c,i)=>{
+    const d=def(c),b=document.createElement("button");
+    b.type="button";
+    b.className=`card tier${d.tier} ${c.key==="contamination"?"contamination":""}`+
+      (state.selected===i?" selected":"")+(state.exchangeSelected.has(i)?" exchange-selected":"");
+    const art=(d.type==="path"||d.type==="pathSpecial")?`<div style="transform:scale(.72)">${tileHtml({
+      kind:"path",paths:d.paths,rotation:state.selected===i?state.rotation:0,split:d.split,oneWay:d.oneWay,warp:c.key==="warpGate"
+    })}</div>`:(OBJECTS[animSettings[c.key].object]||"✨");
+    b.innerHTML=`<span class="card-tier">${"★".repeat(d.tier)}</span>
+      <div><div class="card-title">${d.name}</div><div class="card-type">${typeLabel(d)}</div></div>
+      <div class="card-art">${art==="beam"?"━":art==="cage"?"▥":art==="coins"?"🪙":art}</div>
+      <div class="card-desc">${d.desc}</div>`;
+    b.addEventListener("click",()=>onCardClick(i));
+    b.addEventListener("mouseenter",e=>showTooltip(e,c));
+    b.addEventListener("mousemove",moveTooltip);
+    b.addEventListener("mouseleave",hideTooltip);
+    handEl.appendChild(b)
+  })
+}
+function typeLabel(d){
+  if(d.type==="path"||d.type==="pathSpecial")return "道カード";
+  if(d.type==="passive")return "保有アイテム";
+  if(d.type==="curse")return "汚染";
+  return "アイテム"
+}
+function showTooltip(e,c){
+  const d=def(c);
+  tooltip.innerHTML=`<b>${d.name}</b>　Tier ${d.tier}<br>${d.desc}<br><span class="small">演出: ${OBJECT_LABELS[animSettings[c.key].object]} / ${animSettings[c.key].duration}ms</span>`;
+  tooltip.classList.add("show");moveTooltip(e)
+}
+function moveTooltip(e){
+  tooltip.style.left=Math.min(innerWidth-320,e.clientX+15)+"px";
+  tooltip.style.top=Math.min(innerHeight-130,e.clientY+15)+"px"
+}
+function hideTooltip(){tooltip.classList.remove("show")}
+
+function getSelectedCard(){return state.selected==null?null:human().hand[state.selected]}
+function cardCategory(c){const d=def(c);return (d.type==="path"||d.type==="pathSpecial")?"path":(d.type==="passive"||d.type==="curse")?"none":"item"}
+function canUseCardNow(c,p=human()){
+  const cat=cardCategory(c);if(cat==="none")return false;
+  if(cat==="path")return state.pathUseCount<state.pathLimit&&!p.jailed&&!p.broken;
+  return !state.itemUsed
+}
+function requireUsableHumanCard(c){
+  if(canUseCardNow(c))return true;
+  const path=cardCategory(c)==="path";
+  showToast(path?"この道は現在使えません。選択したまま捨てることはできます。":"このアイテムは現在使えません。選択したまま捨てることはできます。");
+  sound("bad");return false
+}
+function consumeActionSlot(c,free=false){state.turnActionTaken=true;if(free)return;const cat=cardCategory(c);if(cat==="path"){state.pathUseCount++;state.pathUsed=state.pathUseCount>=state.pathLimit}if(cat==="item")state.itemUsed=true}
+function afterHumanAction(){renderAll()}
+
+function onCardClick(i){
+  if(!currentPlayer().isHuman||state.phase!=="playing")return;
+  if(state.exchangeMode){if(state.exchangeSelected.has(i))state.exchangeSelected.delete(i);else state.exchangeSelected.add(i);renderHand();updateControls();return}
+  const c=human().hand[i],d=def(c);
+  if(d.type==="passive"||d.type==="curse"){
+    state.selected=i;state.rotation=0;renderHand();renderBoard();updateControls();
+    showToast(d.type==="passive"?"保有効果カードです。使わず保持するか、捨てる・交換に回せます。":"汚染カードは使用不能です。単独で捨てると全手札を失います。");return
+  }
+  if(!canUseCardNow(c)){
+    state.selected=i;state.rotation=0;renderHand();renderBoard();updateControls();
+    requireUsableHumanCard(c);return
+  }
+  state.selected=i;state.rotation=0;renderHand();renderBoard();updateControls();
+  if(d.type==="targetPlayer")openPlayerTarget(c);
+  if(d.type==="self")useSelfCard(c)
+}
+
+function rotateSelected(){
+  const c=getSelectedCard(),me=human();
+  if(!c||me.profession!=="engineer"||!["path","pathSpecial"].includes(def(c).type))return;
+  state.rotation=(state.rotation+1)%4;renderHand();renderBoard();sound("tick")
+}
+
+function onCellClick(x,y){
+  if(!currentPlayer().isHuman||state.phase!=="playing")return;
+  const c=getSelectedCard();if(!c)return;
+  if(!requireUsableHumanCard(c))return;
+  if(!isValidTarget(c,x,y)){showToast("その対象には使えません。");sound("bad");return}
+  const d=def(c);
+  if(d.type==="path"){placeHumanPath(c,x,y);return}
+  if(c.key==="warpGate"){placeWarpGate(c,x,y);return}
+  if(c.key==="pocketTunnel"){placePocketTunnel(c,x,y);return}
+  if(c.key==="collapse"){destroyTiles([{x,y}],c);return}
+  if(c.key==="xBomb"){openShapeChoice(c,x,y);return}
+  if(c.key==="blaster"){openLineChoice(c,x,y);return}
+  if(c.key==="reinforce"){
+    state.board[y][x].reinforced=true;finishHumanCard(c,`あなたは坑道を補強した。`);return
+  }
+  if(["goalInspect","crystalCompass","surveyDrone"].includes(c.key)){inspectGoal(x,y,c);return}
+  if(c.key==="echoDrill"){echoDrill(x,y,c);return}
+  if(c.key==="lantern"){lanternShield(x,y,c);return}
+  if(c.key==="tunnelSeed"){tunnelSeed(x,y,c);return}
+  if(c.key==="heatLamp"){heatLamp(x,y,c);return}
+  if(c.key==="trackSwitch"){trackSwitch(x,y,c);return}
+  if(c.key==="chainCharge"){chainCharge(x,y,c);return}
+  if(c.key==="sealRune"){sealRune(x,y,c);return}
+}
+
+function recordPathPlacement(p,x=null,y=null,beforeMetric=null){
+  p.pathPlaced++;if(hasGimmick("gold")){p.goldVeinPlaced++;if(p.goldVeinPlaced%3===0){p.reward++;addLog(`${p.name} は金脈で道を3枚置き、報酬+1。`,"good")}}
+  if(x!==null&&y!==null){const after=networkProgressMetric(),reachable=state.reachable.has(keyXY(x,y));if(beforeMetric!==null&&after>beforeMetric)observePublicBehavior(p,"progress",Math.max(1,after-beforeMetric));else if(reachable)observePublicBehavior(p,"construct",1);else observePublicBehavior(p,"deadend",1)}
+}
+function recordDemolitionUse(p,c){
+  if(!["xBomb","blaster","collapse","chainCharge"].includes(c.key)||p.profession!=="demolitionist")return;
+  p.demolitionUses++;
+}
+function recordSabotage(p,amount=1){
+  if(!p||amount<=0)return;p.sabotageMarks+=amount
+}
+function removeDestructiblePath(actor,x,y){
+  const t=inBounds(x,y)?state.board[y][x]:null;if(!(t&&t.kind==="path"&&!t.reinforced))return false;const harmed=state.reachable.has(keyXY(x,y));state.board[y][x]=null;
+  if(t.returnOnDestroy&&t.ownerUid&&t.cardKey){const owner=state.players.find(p=>p.uid===t.ownerUid);if(owner){owner.hand.push(card(t.cardKey));addLog(`帰還坑道が${owner.name}の手札へ戻った。`,"important")}}
+  if(harmed){recordSabotage(actor,1);observePublicBehavior(actor,"destroy",1)}return true
+}
+function boardCrystalCount(){
+  let n=0;for(const row of state.board)for(const t of row)if(t&&t.kind==="path")n+=Number(t.crystals||0);return n
+}
+function drawMatchingCards(p,predicate,count){
+  let drawn=0;
+  for(let i=state.deck.length-1;i>=0&&drawn<count;i--){
+    const c=state.deck[i];if(!predicate(c))continue;
+    p.hand.push(state.deck.splice(i,1)[0]);drawn++
+  }
+  return drawn
+}
+function drawItemCards(p,count){return drawMatchingCards(p,c=>cardCategory(c)==="item",count)}
+function drawSupportCards(p,count){const support=new Set(["repair","key","rescueTeam","emergencyKit","heatLamp","drainPump","massRepair","massEscape"]);return drawMatchingCards(p,c=>support.has(c.key),count)}
+function drawIntelCards(p,count){const intel=new Set(["goalInspect","surveyDrone","professionInspect","crystalCompass","oracleStone"]);return drawMatchingCards(p,c=>intel.has(c.key),count)}
+function createTemporaryWater(count=1,duration=3,around=null){
+  const empties=[];
+  if(around){for(const d of DIRS){const n=neighbor(around.x,around.y,d);if(n.valid&&!state.board[n.y][n.x])empties.push(n)}}
+  else for(let y=0;y<stage().rows;y++)for(let x=0;x<stage().cols;x++)if(!state.board[y][x])empties.push({x,y});
+  const chosen=shuffle(empties).slice(0,count);for(const o of chosen)state.board[o.y][o.x]={kind:"hazard",hazardType:"water",expiresRound:state.round+duration,id:id()};return chosen.length
+}
+function freezeRandomPaths(count=1,around=null){
+  let choices=listPathTiles().filter(o=>!o.t.frozen&&!o.t.weatherproof);
+  if(around)choices=choices.filter(o=>Math.abs(o.x-around.x)+Math.abs(o.y-around.y)<=1);
+  const chosen=shuffle(choices).slice(0,count);for(const o of chosen)o.t.frozen=true;return chosen.length
+}
+function rotateAllPathsOnce(){const list=listPathTiles();for(const o of list)o.t.rotation=((o.t.rotation||0)+1)%4;return list.length}
+function swapUnknownGoalsOnce(){const positions=shuffle(stage().goals.filter(g=>!state.board[g.y][g.x].revealed));if(positions.length<2)return false;const [a,b]=positions;[state.board[a.y][a.x],state.board[b.y][b.x]]=[state.board[b.y][b.x],state.board[a.y][a.x]];return true}
+function triggerStageRoulette(actor){
+  const effects=[
+    ()=>{const m=shiftColumnOneCell();return m?"列スロットが1列を1マス動かした。":"列スロットは空振りした。"},
+    ()=>`巨大歯車が道${rotateAllPathsOnce()}枚を回転させた。`,
+    ()=>swapUnknownGoalsOnce()?"亡霊が未確認ゴール2つを入れ替えた。":"亡霊は現れなかった。",
+    ()=>`逆流で一時水没が${createTemporaryWater(2,2)}個発生した。`,
+    ()=>`氷鳴りで道${freezeRandomPaths(2)}枚が凍結した。`,
+    ()=>{const m=shiftRandomRowOneCell();return m?"奈落レールが1列を1マス動かした。":"奈落レールは動かなかった。"}
+  ];
+  return effects[Math.floor(Math.random()*effects.length)]()
+}
+function recoverScrapItem(p){
+  for(let i=state.scrap.length-1;i>=0;i--){const c=state.scrap[i];if(cardCategory(c)==="item"&&c.key!=="salvageLicense"){p.hand.push(state.scrap.splice(i,1)[0]);return c}}
+  return null
+}
+function applyPlacedCardEffects(actor,c,x,y){
+  const d=def(c);let notes=[];
+  if(d.drawPathOnPlace){const n=drawMatchingCards(actor,k=>cardCategory(k)==="path",d.drawPathOnPlace);if(n)notes.push(`道を${n}枚補給`)}
+  if(d.drawRandomOnPlace){let n=0;for(let i=0;i<d.drawRandomOnPlace&&state.deck.length;i++){draw(actor,state.deck);n++}if(n)notes.push(`カードを${n}枚補給`)}
+  if(d.createsWater){const n=createTemporaryWater(1,2,{x,y});if(n)notes.push("隣に一時水没")}
+  if(d.freezesNeighbor){const n=freezeRandomPaths(1,{x,y});if(n)notes.push("隣接道を凍結")}
+  if(d.triggersCasino){const m=shiftColumnOneCell();if(m)notes.push("列スロット起動")}
+  if(d.spawnsRuin){const before=listPathTiles().length;spawnRuinNeighbor(x,y,1);if(listPathTiles().length>before)notes.push("古代道を生成")}
+  if(d.mirrorsOnPlace){const before=listPathTiles().length;spawnMirrorCopy(x,y,state.board[y][x],true);if(listPathTiles().length>before)notes.push("鏡写しを生成")}
+  if(d.swapsGoals&&swapUnknownGoalsOnce())notes.push("未確認ゴールを交換");
+  if(d.rotatesBoard){const n=rotateAllPathsOnce();notes.push(`全道${n}枚を回転`)}
+  if(notes.length)addLog(`${actor.name} の「${d.name}」：${notes.join("、")}。`,"important")
+}
+function placeHumanPath(c,x,y){
+  const d=def(c),before=networkProgressMetric();state.board[y][x]={kind:"path",paths:clone(d.paths),rotation:state.rotation,split:!!d.split,oneWay:d.oneWay||null,reinforced:!!d.autoReinforce,crystals:d.crystals||0,weatherproof:!!d.weatherproof,returnOnDestroy:!!d.returnOnDestroy,ownerUid:human().uid,cardKey:c.key,expiresRound:d.expiresRounds?state.round+d.expiresRounds:null,id:id()};state.lastPlaced={x,y,tile:clone(state.board[y][x])};state.reachable=computeReachable();recordPathPlacement(human(),x,y,before);spawnDust(x,y);if(hasGimmick("ruins")&&Math.random()<.38)spawnRuinNeighbor(x,y,1);if(hasGimmick("mirror"))spawnMirrorCopy(x,y,state.board[y][x]);applyPlacedCardEffects(human(),c,x,y);maybeNpcChat(networkProgressMetric()>before?"good":"bad",null);finishHumanCard(c,`あなたは道を ${x+1},${y+1} に配置した。`,true)
+}
+function placeWarpGate(c,x,y){
+  const before=networkProgressMetric();state.board[y][x]={kind:"path",paths:DIRS.slice(),rotation:0,warp:true,id:id()};state.lastPlaced={x,y,tile:clone(state.board[y][x])};state.reachable=computeReachable();recordPathPlacement(human(),x,y,before);spawnDust(x,y);finishHumanCard(c,"あなたはワープゲートを設置した。破壊される可能性はあるが、新たな出発点として機能する。",true)
+}
+function placePocketTunnel(c,x,y){
+  state.board[y][x]={kind:"path",paths:DIRS.slice(),rotation:0,ancient:true,expiresRound:state.round+1,id:id()};
+  recordPathPlacement(human());spawnDust(x,y);finishHumanCard(c,"蜃気楼坑道が空間を一時的につないだ。次の巡目に消滅する。",true)
+}
+function canPlaceGeneratedTile(x,y,tile){
+  if(!inBounds(x,y)||state.board[y][x]||(tile.paths||[]).length<2||tile.split)return false;
+  let matched=false,reachableAnchor=false,goalMatch=false;
+  for(const d of DIRS){
+    const n=neighbor(x,y,d);if(!n.valid)continue;
+    const nt=state.board[n.y][n.x];if(!nt)continue;
+    const a=tilePorts(tile).includes(d),b=tilePorts(nt).includes(OPP[d]);
+    if(a!==b)return false;
+    if(a&&b){matched=true;if(nt.kind==="goal")goalMatch=true;else if(state.reachable.has(keyXY(n.x,n.y)))reachableAnchor=true}
+  }
+  return matched&&reachableAnchor&&(!goalMatch||reachableAnchor)
+}
+function spawnMirrorCopy(x,y,tile,force=false){
+  const mx=stage().cols-1-x,my=y;if(mx===x||!inBounds(mx,my)||state.board[my][mx])return;
+  if(!force&&Math.random()>.65)return;
+  const mirrored=clone(tile);mirrored.id=id();mirrored.ancient=true;mirrored.paths=mirrored.paths.map(d=>d==="e"?"w":d==="w"?"e":d);
+  if(!canPlaceGeneratedTile(mx,my,mirrored))return;
+  state.board[my][mx]=mirrored;spawnDust(mx,my);addLog("鏡面が接続可能な反対側へ道を複製した。","important")
+}
+function spawnRuinNeighbor(x,y,count){
+  let spawned=0;
+  const candidates=shuffle(DIRS.map(d=>neighbor(x,y,d)).filter(n=>n.valid&&!state.board[n.y][n.x]));
+  for(const n of candidates){
+    if(spawned>=count)break;
+    const toward=DIRS.find(d=>{const back=neighbor(n.x,n.y,d);return back.valid&&back.x===x&&back.y===y});
+    const base=[toward,shuffle(DIRS.filter(d=>d!==toward))[0]].filter(Boolean);
+    const generated={kind:"path",paths:[...new Set(base)],rotation:0,ancient:true,reinforced:false,id:id()};
+    if(!canPlaceGeneratedTile(n.x,n.y,generated))continue;
+    state.board[n.y][n.x]=generated;spawnDust(n.x,n.y);spawned++
+  }
+  if(spawned)addLog(`遺跡が共鳴し、古代道が${spawned}枚出現した。`,"important")
+}
+function destroyTiles(points,c){
+  let n=0;
+  for(const p of points)if(removeDestructiblePath(human(),p.x,p.y))n++;
+  finishHumanCard(c,`爆破により坑道を${n}枚破壊した。`,true)
+}
+function openShapeChoice(c,x,y){
+  openGenericTarget("❌","爆破形状","Xボムの破壊方向を選んでください。",[
+    {label:"十字型 ＋",value:"plus"},{label:"斜め型 ×",value:"x"}
+  ],value=>{
+    const dirs=value==="plus"?[[0,0],[1,0],[-1,0],[0,1],[0,-1]]:[[0,0],[1,1],[-1,-1],[1,-1],[-1,1]];
+    destroyTiles(dirs.map(([dx,dy])=>({x:x+dx,y:y+dy})),c)
+  })
+}
+function openLineChoice(c,x,y){
+  openGenericTarget("━","ブラスター照準","破壊する列を選んでください。",[
+    {label:"横一列",value:"row"},{label:"縦一列",value:"col"}
+  ],value=>{
+    const pts=[];
+    if(value==="row")for(let xx=0;xx<stage().cols;xx++)pts.push({x:xx,y});
+    else for(let yy=0;yy<stage().rows;yy++)pts.push({x,y:yy});
+    destroyTiles(pts,c)
+  })
+}
+
+function distanceFromReachableTo(x,y){
+  let best=Infinity;
+  for(const k of state.reachable){
+    const [rx,ry]=k.split(",").map(Number),d=Math.abs(rx-x)+Math.abs(ry-y);
+    if(d<best)best=d
+  }
+  return Number.isFinite(best)?best:null
+}
+function inspectGoal(x,y,c){
+  const t=state.board[y][x],result=inspectGoalPrivately(t,human());
+  let privateText=result.gold?"このゴールは本物です。":"このゴールは偽物です。";
+  if(result.stashText)privateText+=result.stashText;
+  if(human().profession==="cartographer"&&!human().cartographerBonusClaimed){
+    human().cartographerBonusClaimed=true;human().reward++;privateText+=" 地図師の初回調査ボーナスで報酬+1。"
+  }
+  if(c.key==="crystalCompass"){
+    if(state.deck.length){draw(human(),state.deck);privateText+=" 水晶羅針盤でカードを1枚引いた。"}
+  }
+  if(c.key==="surveyDrone"){
+    const d=distanceFromReachableTo(x,y);privateText+=d==null?" 到達済み坑道がありません。":` 到達済み坑道からの概算距離は${d}マス。`
+  }
+  showToast(privateText);
+  finishHumanCard(c,`${def(c).name}で選んだゴールをひそかに確認した。結果は他のプレイヤーには共有されない。`,true)
+}
+function claimGoalStash(goal,p){
+  if(goal.claimed)return "";
+  goal.claimed=true;
+  let cards=goal.stash.splice(0);
+  if(p.profession==="prospector"&&state.deck.length)cards.push(state.deck.pop());
+  p.hand.push(...cards);
+  return cards.length?` 保管されていた最高Tierカード${cards.length}枚を獲得した。`:" 保管品は空だった。"
+}
+function findGoldPosition(){for(let y=0;y<stage().rows;y++)for(let x=0;x<stage().cols;x++){const t=state.board[y][x];if(t?.kind==="goal"&&t.gold)return{x,y}}return null}
+function checkWinAfterReveal(actor){
+  const g=findGoldPosition();
+  if(g&&state.reachable.has(keyXY(g.x,g.y))){finishGame("miner",actor);return true}
+  return false
+}
+function echoDrill(x,y,c){
+  const src=state.board[y][x];
+  const spots=shuffle(DIRS.map(d=>neighbor(x,y,d)).filter(n=>n.valid&&!state.board[n.y][n.x]));
+  if(!spots.length){showToast("複製先がありません。");return}
+  const n=spots[0];
+  state.board[n.y][n.x]={...clone(src),id:id(),ancient:true,reinforced:false,warp:false};
+  spawnDust(n.x,n.y);finishHumanCard(c,"反響ドリルが同型の古代道を複製した。",true)
+}
+function lanternShield(x,y,c){
+  let n=0;
+  for(let yy=y-1;yy<=y+1;yy++)for(let xx=x-1;xx<=x+1;xx++){
+    if(!inBounds(xx,yy))continue;
+    const t=state.board[yy][xx];if(t&&t.kind==="path"){t.tempShieldRound=state.round;n++}
+  }
+  finishHumanCard(c,`星喰い提灯が周囲${n}枚を一巡だけ保護した。`,true)
+}
+function tunnelSeed(x,y,c){
+  const touching=DIRS.filter(d=>{const n=neighbor(x,y,d);return n.valid&&state.board[n.y][n.x]&&tilePorts(state.board[n.y][n.x]).includes(OPP[d])});
+  if(!touching.length){showToast("接続先がないため、遺跡の種は発芽しません。");return}
+  const extra=shuffle(DIRS.filter(d=>!touching.includes(d)))[0];
+  const generated={kind:"path",paths:[...new Set([touching[0],extra])],rotation:0,ancient:true,id:id()};
+  if(!canPlaceGeneratedTile(x,y,generated)){showToast("周囲の道と矛盾するため生成できません。");return}
+  state.board[y][x]=generated;spawnDust(x,y);
+  if(hasGimmick("ruins"))spawnRuinNeighbor(x,y,1);
+  finishHumanCard(c,"遺跡の種が古代道を生成した。",true)
+}
+
+function heatLamp(x,y,c){
+  const t=state.board[y][x];
+  if(t.kind==="hazard"){
+    state.board[y][x]=null;
+    finishHumanCard(c,"融解ランプが選んだ水没マスを排水した。",true);
+    return
+  }
+  let thawed=0;
+  for(const row of state.board)for(const tile of row){
+    if(tile?.frozen){tile.frozen=false;thawed++}
+  }
+  finishHumanCard(c,`融解ランプの熱が坑道全体を巡り、凍結した道${thawed}枚をすべて解かした。`,true)
+}
+function trackSwitch(x,y,c){state.board[y][x].rotation=((state.board[y][x].rotation||0)+1)%4;finishHumanCard(c,"転轍機が盤面上の道を90度回転させた。",true)}
+function chainCharge(x,y,c){const pts=[{x,y},...shuffle(DIRS.map(d=>neighbor(x,y,d)).filter(n=>n.valid)).slice(0,2)];destroyTiles(pts,c)}
+function sealRune(x,y,c){if(state.reachable.has(keyXY(x,y)))recordSabotage(human(),1);state.board[y][x].sealedUntil=state.round+1;finishHumanCard(c,"封路の紋章が道を次の巡目まで閉ざした。",true)}
+
+function openPlayerTarget(c){
+  const k=c.key;
+  let valid=state.players.map((p,i)=>({p,i})).filter(({p})=>{
+    if(k==="sabotage")return !p.broken;
+    if(k==="repair")return p.broken;
+    if(k==="rescueTeam")return p.broken||p.jailed;
+    if(k==="jail")return !p.jailed;
+    if(k==="key")return p.jailed;
+    if(k==="professionSwap")return p!==human();
+    if(k==="handSwap")return p!==human();
+    if(k==="professionInspect")return p!==human();
+    if(k==="timeLock")return p!==human();
+    if(k==="treasureTax")return p!==human()&&p.reward>0;
+    return false
+  });
+  if(!valid.length){showToast("対象がいません。");return}
+  openGenericTarget(OBJECTS[animSettings[k].object]||"🎯",def(c).name,"対象を選択してください。",
+    valid.map(({p,i})=>({label:`${p.face} ${p.name}`,value:i})),
+    i=>applyPlayerCard(c,Number(i)))
+}
+function performHumanHandSwap(c,target){
+  const me=human();
+  consumeActionSlot(c);
+  removeHumanCard(c);
+  const mine=me.hand;
+  me.hand=target.hand;
+  target.hand=mine;
+  addGrudge(target,me,1);
+  const message=`${target.name} と残りの手札をすべて交換した。内容は当事者以外には公開されない。`;
+  playCardAnimation(c,message);
+  addLog(message,"important");
+  state.selected=null;state.rotation=0;state.reachable=computeReachable();renderAll();afterHumanAction()
+}
+
+function resolveHumanRescue(c,p,mode){
+  const me=human();
+  if(mode==="jail"&&p.jailed){p.jailed=false;addFavor(p,me,2);addLog(`${p.name} を牢屋から救出した。`,"good")}
+  else if(mode==="broken"&&p.broken){p.broken=false;addFavor(p,me,2);observePublicBehavior(me,"help",1);addLog(`${p.name} の工具を修理した。`,"good")}
+  finishHumanCard(c,"",true)
+}
+function applyPlayerCard(c,i){
+  if(!requireUsableHumanCard(c)){el("targetOverlay").classList.add("hidden");return}
+  const p=state.players[i],me=human();
+  if(c.key==="sabotage"){const fresh=!p.broken;p.broken=true;addGrudge(p,me,2);observePublicBehavior(me,"harm",1);if(fresh&&p.alignment==="miner")recordSabotage(me,1);addLog(`${p.name} の工具を破壊した。`,"bad")}
+  if(c.key==="repair"){p.broken=false;addFavor(p,me,2);observePublicBehavior(me,"help",1);addLog(`${p.name} の工具を修理した。`,"good")}
+  if(c.key==="rescueTeam"){
+    if(p.broken&&p.jailed){
+      openGenericTarget("🛠️","救援班","解除する状態を選んでください。",[
+        {label:"🔧 工具を修理",value:"broken"},{label:"🗝️ 牢屋から救出",value:"jail"}
+      ],mode=>resolveHumanRescue(c,p,mode));return
+    }
+    resolveHumanRescue(c,p,p.jailed?"jail":"broken");return
+  }
+  if(c.key==="jail"){const fresh=!p.jailed;p.jailed=true;addGrudge(p,me,3);observePublicBehavior(me,"harm",1.5);if(me.profession==="warden")me.wardenJails++;if(fresh&&p.alignment==="miner")recordSabotage(me,2);addLog(`${p.name} を牢屋へ送った。`,"bad")}
+  if(c.key==="key"){p.jailed=false;addFavor(p,me,2);addLog(`${p.name} は牢屋から脱出した。`,"good")}
+  if(c.key==="handSwap"){performHumanHandSwap(c,p);return}
+  if(c.key==="professionInspect"){
+    rememberProfession(me,p);
+    showToast(`${p.name} の現在職業は「${PROFESSIONS[p.profession].name}」。この情報はあなただけが知る。`);
+    addLog(`${p.name} の職業をひそかに確認した。結果は共有されない。`,"important")
+  }
+  if(c.key==="professionSwap"){
+    const myJob=me.profession,theirJob=p.profession;
+    forgetProfessionKnowledge(me);forgetProfessionKnowledge(p);
+    setProfession(me,theirJob);setProfession(p,myJob);
+    rememberProfession(me,p);rememberProfession(p,me);addGrudge(p,me,1);
+    addLog(`${p.name} と職業を交換した。交換後のあなたは ${PROFESSIONS[me.profession].name}。${p.name} の現在職業「${PROFESSIONS[p.profession].name}」は、あなたにだけ表示される。`,"important")
+  }
+  if(c.key==="timeLock"){p.itemLockedNext=true;addGrudge(p,me,2);if(p.alignment==="miner")recordSabotage(me,1);addLog(`${p.name} の次のアイテム行動を封じた。`,"bad")}
+  if(c.key==="treasureTax"){p.reward--;me.reward++;addGrudge(p,me,2);addLog(`${p.name} から報酬を1点徴収した。`,"good")}
+  finishHumanCard(c,"",true)
+}
+function findBestAutoPathPlacement(actor){
+  let best=null;for(let i=state.deck.length-1;i>=0;i--){const c=state.deck[i],d=def(c);if(cardCategory(c)!=="path"||c.key==="warpGate"||d.weird)continue;for(let r=0;r<(actor.profession==="engineer"?4:1);r++)for(let y=0;y<stage().rows;y++)for(let x=0;x<stage().cols;x++){if(!canPlacePath(actor,x,y,d,r,false))continue;const score=scoreAiPath(actor,x,y,d,r);if(!best||score>best.score)best={deckIndex:i,c,d,x,y,r,score}}}return best
+}
+function autoBuildChain(actor,count){
+  let placed=0;for(let n=0;n<count;n++){state.reachable=computeReachable();const best=findBestAutoPathPlacement(actor);if(!best)break;const before=networkProgressMetric();state.deck.splice(best.deckIndex,1);state.board[best.y][best.x]={kind:"path",paths:clone(best.d.paths),rotation:best.r,split:!!best.d.split,oneWay:best.d.oneWay||null,reinforced:!!best.d.autoReinforce,crystals:best.d.crystals||0,weatherproof:!!best.d.weatherproof,returnOnDestroy:!!best.d.returnOnDestroy,ownerUid:actor.uid,cardKey:best.c.key,id:id()};state.reachable=computeReachable();recordPathPlacement(actor,best.x,best.y,before);applyPlacedCardEffects(actor,best.c,best.x,best.y);spawnDust(best.x,best.y);placed++}return placed
+}
+function useSelfCard(c){
+  if(!requireUsableHumanCard(c))return;
+  if(c.key==="careerChange"){
+    const choices=Object.keys(PROFESSIONS).filter(k=>k!==human().profession&&(state.stageKey!=="floating"||k!=="warper"));
+    forgetProfessionKnowledge(human());setProfession(human(),choices[Math.floor(Math.random()*choices.length)]);
+    finishHumanCard(c,`あなたは ${PROFESSIONS[human().profession].name} へ転職した。`,true)
+  }else if(c.key==="mimicChest"){
+    if(Math.random()<.7){human().reward+=1;finishHumanCard(c,"ミミックを従え、報酬+1。",true)}
+    else{human().hand.push(card("contamination"));finishHumanCard(c,"ミミックに噛まれ、汚染カードを1枚得た。",true)}
+  }else if(c.key==="emergencyKit"){
+    human().jailed=false;human().broken=false;finishHumanCard(c,"緊急脱出キットで牢屋と工具破壊を解除した。",true)
+  }else if(c.key==="massRepair"){
+    let count=0;for(const p of state.players)if(p.broken){p.broken=false;count++;if(p!==human())addFavor(p,human(),1)}
+    finishHumanCard(c,`総点検により全員の工具破壊を解除した。修理${count}人。`,true)
+  }else if(c.key==="massEscape"){
+    let count=0;for(const p of state.players)if(p.jailed){p.jailed=false;count++;if(p!==human())addFavor(p,human(),1)}
+    finishHumanCard(c,`一斉脱獄により全員の牢屋を解除した。救出${count}人。`,true)
+  }else if(c.key==="goldMagnet"){
+    const picks=[];if(state.deck.length)picks.push(state.deck.pop());if(state.deck.length)picks.push(state.deck.pop());
+    if(!picks.length){showToast("山札が空です。");return}picks.sort((a,b)=>def(b).tier-def(a).tier);human().hand.push(picks[0]);if(picks[1])state.deck.unshift(picks[1]);finishHumanCard(c,`黄金磁石がTier ${def(picks[0]).tier}のカードを引き寄せた。`,true)
+  }else if(c.key==="cursedDice"){
+    const r=1+Math.floor(Math.random()*6);let msg=`呪鉱ダイスは${r}。`;
+    if(r===1){human().jailed=true;msg+="牢屋へ送られた。"}else if(r===2){human().hand.push(card("contamination"));msg+="汚染カードを得た。"}else if(r===3){human().reward++;msg+="報酬+1。"}else if(r===4){draw(human(),state.deck);draw(human(),state.deck);msg+="カードを2枚引いた。"}else if(r===5){human().broken=false;msg+="工具が修復された。"}else{human().reward+=2;msg+="大当たり、報酬+2。"}finishHumanCard(c,msg,true)
+  }else if(c.key==="pathSupply"){
+    const n=drawMatchingCards(human(),x=>cardCategory(x)==="path",2);
+    finishHumanCard(c,`坑道補給箱から道カードを${n}枚引いた。`,true)
+  }else if(c.key==="tunnelRush"){
+    state.pathLimit=3;state.pathUsed=state.pathUseCount>=state.pathLimit;
+    const n=drawMatchingCards(human(),x=>cardCategory(x)==="path",2);
+    finishHumanCard(c,`坑道ラッシュを開始。この手番は道を合計3枚まで配置でき、道カードを${n}枚補給した。`,true)
+  }else if(c.key==="linkedExcavation2"||c.key==="linkedExcavation3"){
+    const count=c.key==="linkedExcavation3"?3:2,n=autoBuildChain(human(),count);finishHumanCard(c,`連結掘削で道を${n}枚、地続きに自動配置した。`,true)
+  }else if(c.key==="supplyDrop"){
+    const n=drawItemCards(human(),2);finishHumanCard(c,`物資投下からアイテムを${n}枚受け取った。`,true)
+  }else if(c.key==="rescueContainer"){
+    const n=drawSupportCards(human(),2);finishHumanCard(c,`救援コンテナから救助アイテムを${n}枚受け取った。`,true)
+  }else if(c.key==="drainPump"){
+    let n=0;for(let y=0;y<stage().rows;y++)for(let x=0;x<stage().cols;x++)if(state.board[y][x]?.kind==="hazard"){state.board[y][x]=null;n++}finishHumanCard(c,`大型排水ポンプで水没マスを${n}個除去した。`,true)
+  }else if(c.key==="mixedCargo"){
+    const a=drawMatchingCards(human(),x=>cardCategory(x)==="path",1),b=drawItemCards(human(),1);finishHumanCard(c,`混載トロッコから道${a}枚、アイテム${b}枚を受け取った。`,true)
+  }else if(c.key==="surveyPack"){
+    const n=drawIntelCards(human(),2);finishHumanCard(c,`調査鞄から情報系アイテムを${n}枚受け取った。`,true)
+  }else if(c.key==="salvageLicense"){
+    const recovered=recoverScrapItem(human()),n=recovered?1:drawItemCards(human(),1);finishHumanCard(c,recovered?`捨て札から「${def(recovered).name}」を回収した。`:`回収品がなく、山札からアイテムを${n}枚引いた。`,true)
+  }else if(c.key==="casinoHandle"){
+    const moved=shiftColumnOneCell();finishHumanCard(c,moved?"非常レバーで1列を1マス動かした。":"動かせる列がなかった。",true)
+  }else if(c.key==="clockworkWinder"){
+    const n=rotateAllPathsOnce();finishHumanCard(c,`大歯車の巻き鍵で道${n}枚を90度回転した。`,true)
+  }else if(c.key==="ghostInvitation"){
+    finishHumanCard(c,swapUnknownGoalsOnce()?"亡霊が未確認ゴール2つを入れ替えた。":"交換できる未確認ゴールがなかった。",true)
+  }else if(c.key==="flashFlood"){
+    const n=createTemporaryWater(2,2);finishHumanCard(c,`逆流バルブで2巡後に消える水没を${n}個発生させた。`,true)
+  }else if(c.key==="iceChime"){
+    const n=freezeRandomPaths(2);finishHumanCard(c,`氷鳴りの鐘で耐候でない道${n}枚を凍結した。`,true)
+  }else if(c.key==="ruinResonator"){
+    if(state.lastPlaced){const before=listPathTiles().length;spawnRuinNeighbor(state.lastPlaced.x,state.lastPlaced.y,2);finishHumanCard(c,`遺跡共鳴器で古代道を${listPathTiles().length-before}枚生成した。`,true)}else finishHumanCard(c,"共鳴させる直前の道がなかった。",true)
+  }else if(c.key==="mirrorShard"){
+    if(state.lastPlaced&&state.board[state.lastPlaced.y]?.[state.lastPlaced.x]){const before=listPathTiles().length;spawnMirrorCopy(state.lastPlaced.x,state.lastPlaced.y,state.board[state.lastPlaced.y][state.lastPlaced.x],true);finishHumanCard(c,`鏡鉱の破片で道を${listPathTiles().length>before?"複製した":"複製できなかった"}。`,true)}else finishHumanCard(c,"鏡写しにする直前の道がなかった。",true)
+  }else if(c.key==="abyssTicket"){
+    const moved=shiftRandomRowOneCell();finishHumanCard(c,moved?"奈落レールが1列を1マス動かした。":"動かせる列がなかった。",true)
+  }else if(c.key==="stageRoulette"){
+    finishHumanCard(c,`ステージ・ルーレット：${triggerStageRoulette(human())}`,true)
+  }else if(c.key==="tunnelLottery"){
+    const n=drawMatchingCards(human(),x=>cardCategory(x)==="path",3);human().hand.push(card("contamination"));finishHumanCard(c,`坑道くじで道を${n}枚引き、汚染を1枚得た。`,true)
+  }else if(c.key==="itemLottery"){
+    const n=drawItemCards(human(),3);const candidates=human().hand.filter(x=>x.id!==c.id);if(candidates.length){const lost=candidates[Math.floor(Math.random()*candidates.length)];human().hand.splice(human().hand.indexOf(lost),1);state.scrap.push(lost);finishHumanCard(c,`怪しい福袋でアイテムを${n}枚引き、「${def(lost).name}」を失った。`,true)}else finishHumanCard(c,`怪しい福袋でアイテムを${n}枚引いた。`,true)
+  }else if(c.key==="oracleStone"){
+    let found=0,real=0,fake=0;for(const g of stage().goals){const t=state.board[g.y][g.x];if(!knowsGoal(human(),t)){const result=inspectGoalPrivately(t,human());found++;result.gold?real++:fake++}}human().hand.push(card("contamination"));showToast(`神託結果：本物${real}、偽物${fake}。この情報はあなただけが知る。`);finishHumanCard(c,`深層神託石でゴール${found}個を秘密裏に確認し、代償として汚染を得た。`,true)
+  }
+}
+
+function finishHumanCard(c,message,checkGoals=false,freeAction=false){
+  playCardAnimation(c,message||null);
+  recordDemolitionUse(human(),c);
+  consumeActionSlot(c,freeAction);removeHumanCard(c);if(message)addLog(message);
+  state.selected=null;state.rotation=0;state.reachable=computeReachable();renderAll();revealReachedGoals(human());
+  if(checkGoals&&checkEnd())return;afterHumanAction()
+}
+function removeHumanCard(c){
+  const me=human(),idx=me.hand.findIndex(x=>x.id===c.id);if(idx>=0)me.hand.splice(idx,1)
+}
+
+function revealReachedGoals(actor){
+  for(const g of stage().goals){
+    const t=state.board[g.y][g.x];
+    if(state.reachable.has(keyXY(g.x,g.y))&&!t.revealed){
+      t.revealed=true;
+      if(!t.gold){
+        addLog(`偽ゴールが開いた。${claimGoalStash(t,actor)}`,"good")
+      }else addLog("真のゴールへの道が開いた。","important")
+    }
+  }
+}
+
+function discardSelected(){
+  const c=getSelectedCard();if(!c||!currentPlayer().isHuman)return;const me=human();
+  if(state.discardCountThisTurn>=1){showToast("通常のカード廃棄は1手番に1回までです。追加整理は交換ドローを使ってください。");return}
+  if(c.key==="contamination"){
+    const n=me.hand.length;state.scrap.push(...me.hand);me.hand=[];state.selected=null;state.turnActionTaken=true;state.discardCountThisTurn=1;
+    addLog(`汚染カードを捨てるため、手札${n}枚をすべて廃棄した。強制廃棄は怠け者の実績に数えない。`,"bad");playCardAnimation(c);afterHumanAction();return
+  }
+  removeHumanCard(c);state.scrap.push(c);state.turnActionTaken=true;state.discardCountThisTurn=1;
+  if(me.profession==="slacker"){me.slackerDiscarded++;addLog(`${def(c).name}を捨てた。怠け者の廃棄実績 ${me.slackerDiscarded}/5。`)}
+  else addLog(`${def(c).name}を捨てた。`);
+  state.selected=null;afterHumanAction()
+}
+
+function toggleExchange(){
+  if(!currentPlayer().isHuman||!state.deck.length)return;state.exchangeMode=true;state.selected=null;state.exchangeSelected.clear();renderAll()
+}
+function cancelExchange(){
+  if(!state||!state.exchangeMode)return;
+  state.exchangeMode=false;state.exchangeSelected.clear();state.selected=null;renderAll();showToast("交換ドローを取り消しました。")
+}
+function confirmExchange(){
+  const me=human(),cost=me.profession==="slacker"?3:2;
+  if(state.exchangeSelected.size!==cost){showToast(`${cost}枚選択してください。`);return}
+  const chosen=[...state.exchangeSelected].sort((a,b)=>b-a);
+  if(chosen.some(i=>me.hand[i]?.key==="contamination")){showToast("汚染カードは交換ドローに使用できません。");return}
+  const discarded=chosen.map(i=>me.hand[i]).filter(Boolean);chosen.forEach(i=>me.hand.splice(i,1));state.scrap.push(...discarded);draw(me,state.deck);state.exchangeMode=false;state.exchangeSelected.clear();state.turnActionTaken=true;state.exchangeCountThisTurn++;
+  if(me.profession==="slacker")me.slackerDiscarded+=cost;
+  addLog(`${cost}枚を捨て、追加で1枚ドローした。同じ手番中に何度でも実行できる。${me.profession==="slacker"?` 怠け者の廃棄実績 ${me.slackerDiscarded}/5。`:""}`,"important");playRawAnimation("cards",700);renderAll()
+}
+
+function endHumanTurn(){
+  if(!currentPlayer().isHuman||state.phase!=="playing")return;
+  const me=human(),absoluteEmpty=me.hand.length===0&&state.deck.length===0;
+  if(!state.turnActionTaken&&!absoluteEmpty){showToast("何もせず手番終了はできません。カードを使う、1枚捨てる、または交換ドローを行ってください。");return}
+  if(absoluteEmpty&&!state.turnActionTaken)addLog("手札も山札も空のため、例外的に手番を終了した。");
+  if(checkEnd())return;advanceTurn()
+}
+function advanceTurn(){
+  state.currentIndex=(state.currentIndex+1)%state.players.length;
+  if(state.currentIndex===0){
+    state.round++;
+    clearTemporaryShields();
+    applyRoundStageGimmick()
+  }
+  state.pathUsed=false;state.pathUseCount=0;state.pathLimit=1;state.itemUsed=false;state.turnActionTaken=false;state.exchangeCountThisTurn=0;state.discardCountThisTurn=0;renderAll();
+  setTimeout(beginTurn,350)
+}
+function clearTemporaryShields(){
+  for(const row of state.board)for(const t of row)if(t&&t.tempShieldRound<state.round)delete t.tempShieldRound
+}
+function movableSegments(indices,getTile){
+  const segments=[];let current=[];
+  for(const index of indices){
+    const t=getTile(index);
+    const movable=!t||t.kind==="path";
+    if(movable)current.push(index);
+    else{if(current.length>=2)segments.push(current);current=[]}
+  }
+  if(current.length>=2)segments.push(current);
+  return segments.filter(segment=>segment.some(index=>getTile(index)?.kind==="path"))
+}
+function shiftColumnOneCell(){
+  const st=stage(),columns=shuffle([...Array(st.cols).keys()].filter(x=>x!==st.start.x));
+  for(const x of columns){
+    const segments=movableSegments([...Array(st.rows).keys()],y=>state.board[y][x]);
+    if(!segments.length)continue;
+    const segment=segments[Math.floor(Math.random()*segments.length)];
+    const vals=segment.map(y=>state.board[y][x]),dir=Math.random()<.5?1:-1;
+    segment.forEach((y,i)=>state.board[y][x]=vals[(i-dir+vals.length)%vals.length]);
+    return {x,dir}
+  }
+  return null
+}
+function shiftRandomRowOneCell(){
+  const st=stage(),rows=shuffle([...Array(st.rows).keys()]);
+  for(const y of rows){
+    const segments=movableSegments([...Array(st.cols).keys()],x=>state.board[y][x]);
+    if(!segments.length)continue;
+    const segment=segments[Math.floor(Math.random()*segments.length)];
+    const vals=segment.map(x=>state.board[y][x]),dir=Math.random()<.5?1:-1;
+    segment.forEach((x,i)=>state.board[y][x]=vals[(i-dir+vals.length)%vals.length]);
+    return {y,dir}
+  }
+  return null
+}
+function applyRoundStageGimmick(){
+  const st=stage(),chaos=!!st.moreChaos;
+  for(let y=0;y<st.rows;y++)for(let x=0;x<st.cols;x++){
+    const t=state.board[y][x];if(!(t?.expiresRound&&t.expiresRound<=state.round))continue;
+    state.board[y][x]=null;addLog(t.kind==="hazard"?"水没マスの水が地中へ引き、通行可能な土地へ戻った。":"時間制限つきの坑道が霧散した。",t.kind==="hazard"?"good":"")
+  }
+
+  if(hasGimmick("casino")&&(chaos||state.round%2===0)){
+    boardEl.classList.add("slot-spin");playRawAnimation("dice",850);
+    if(chaos){
+      const columns=shuffle([...Array(st.cols).keys()].filter(x=>x!==st.start.x)).slice(0,Math.max(2,Math.floor(st.cols/3)));
+      for(const x of columns){
+        const ys=[...Array(st.rows).keys()].filter(y=>{const t=state.board[y][x];return !t||t.kind==="path"});
+        if(ys.length<2)continue;
+        const vals=ys.map(y=>state.board[y][x]),shift=1+Math.floor(Math.random()*(ys.length-1));
+        ys.forEach((y,i)=>state.board[y][x]=vals[(i-shift+vals.length)%vals.length])
+      }
+      addLog("モアカオスの列スロットが複数列を大きく入れ替えた。","important")
+    }else{
+      const moved=shiftColumnOneCell();
+      if(moved)addLog(`列スロットが1列だけを${moved.dir>0?"下":"上"}へ1マス動かした。`,"important")
+    }
+    setTimeout(()=>boardEl.classList.remove("slot-spin"),760)
+  }
+
+  if(hasGimmick("frozen")){
+    const choices=listPathTiles().filter(o=>!o.t.frozen&&!o.t.weatherproof);if(choices.length){const o=choices[Math.floor(Math.random()*choices.length)];o.t.frozen=true;addLog("氷晶が道を凍結させ、接続を断った。","bad");playRawAnimation("snow",700)}
+  }
+  if(hasGimmick("flooded")){
+    const n=createTemporaryWater(1,3);if(n)addLog("地下水が噴き出した。水没マスは3巡後に自然消滅する。","bad")
+  }
+
+  if(hasGimmick("clockwork")&&(chaos||state.round%3===0)){
+    listPathTiles().forEach(o=>o.t.rotation=((o.t.rotation||0)+1)%4);
+    addLog(chaos?"モアカオスの巨大歯車が道を回転させた。":"巨大歯車が3巡ぶりに道を90度回転させた。","important");
+    playRawAnimation("gear",760)
+  }
+
+  if(hasGimmick("abyssrail")&&(chaos?state.round%2===0:state.round%3===0)){
+    const moved=shiftRandomRowOneCell();
+    if(moved){
+      addLog(`奈落レールが1列だけを${moved.dir>0?"右":"左"}へ1マス動かした。`,"important");
+      playRawAnimation("rail",760)
+    }
+  }
+
+  if(hasGimmick("haunted")&&(chaos||state.round%3===0)){
+    const positions=shuffle(st.goals.filter(g=>!state.board[g.y][g.x].revealed));
+    if(positions.length>1){
+      if(chaos){
+        const tiles=shuffle(positions.map(g=>state.board[g.y][g.x]));
+        positions.forEach((g,i)=>state.board[g.y][g.x]=tiles[i]);
+        addLog("モアカオスの亡霊が未確認ゴールをまとめて入れ替えた。","important")
+      }else{
+        const [a,b]=positions;
+        [state.board[a.y][a.x],state.board[b.y][b.x]]=[state.board[b.y][b.x],state.board[a.y][a.x]];
+        addLog("亡霊が未確認ゴール2つだけを入れ替えた。","important")
+      }
+      playRawAnimation("ghost",850)
+    }
+  }
+
+  state.reachable=computeReachable();renderAll();revealReachedGoals(currentPlayer());checkEnd()
+}
+
+function checkEnd(){
+  const gold=findGoldPosition();
+  if(gold&&state.reachable.has(keyXY(gold.x,gold.y))){finishGame("miner",currentPlayer());return true}
+  const noCards=state.deck.length===0&&state.players.every(p=>p.hand.length===0);
+  if(noCards){finishGame("saboteur",currentPlayer());return true}
+  return false
+}
+
+function awardVictoryPool(winner,actor){
+  const eligible=state.players.filter(p=>p.alignment===winner&&!p.jailed),pool=winner==="miner"?REWARD_BALANCE.minerPool(state.players.length):REWARD_BALANCE.saboteurPool(state.players.length);state.victoryPool=pool;if(!eligible.length)return;
+  let remaining=pool;
+  if(winner==="miner")for(const p of eligible.filter(p=>["geologist","slacker"].includes(p.profession))){if(remaining>0){p.goalShare=1;p.reward++;remaining--}}
+  const weight=p=>winner==="saboteur"?1:p.profession==="boss"?1.6:["geologist","slacker"].includes(p.profession)?.15:1,total=eligible.reduce((sum,p)=>sum+weight(p),0)||1;
+  let assigned=0;const fractions=[];for(const p of eligible){const raw=remaining*weight(p)/total,base=Math.floor(raw);p.goalShare+=base;p.reward+=base;assigned+=base;fractions.push({p,f:raw-base})}
+  fractions.sort((a,b)=>{if(a.p===actor)return -1;if(b.p===actor)return 1;if(b.f!==a.f)return b.f-a.f;return b.p.pathPlaced-a.p.pathPlaced});for(let i=0;i<remaining-assigned;i++){fractions[i%fractions.length].p.goalShare++;fractions[i%fractions.length].p.reward++}
+}
+function commitCampaignRewards(){
+  if(state.campaignCommitted)return;
+  state.campaignCommitted=true;campaignData.rounds++;
+  for(const p of state.players){
+    p.roundEarned=p.reward+p.treasures;
+    p.campaignAfter=p.campaignBefore+p.roundEarned;
+    campaignData.totals[p.name]=p.campaignAfter
+  }
+  saveCampaignData();updateCampaignSummary()
+}
+function finishGame(winner,actor){
+  if(state.phase==="ended")return;
+  state.phase="ended";state.winner=winner;
+  if(state.onlineRoom&&onlineSocket&&onlineState.isHost){
+    onlineSocket.emit("report_result",{roomCode:state.onlineRoom,results:state.players.map(p=>({name:p.name,won:p.alignment===winner&&!p.jailed}))})
+  }
+  for(const g of stage().goals)state.board[g.y][g.x].revealed=true;
+  awardVictoryPool(winner,actor);
+  applyEndProfessionRewards();
+  commitCampaignRewards();
+  renderAll();
+  const me=human(),won=me.alignment===winner&&!me.jailed;
+  const eligibleCount=state.players.filter(p=>p.alignment===winner&&!p.jailed).length;
+  el("resultIcon").textContent=won?"🏆":"⚰️";
+  el("resultTitle").textContent=won?"あなたの勝利":"あなたの敗北";
+  el("resultText").innerHTML=
+    `${winner==="miner"?"坑夫陣営が真のゴールへ到達しました。":"お邪魔者陣営が坑道を封じ切りました。"}<br>`+
+    `勝利報酬プール ${state.victoryPool} を、牢屋にいない勝者 ${eligibleCount}人で山分けしました。<br>`+
+    `${me.jailed?`あなたは牢屋にいるため勝利山分けと職業終了ボーナスはありませんが、途中で得た報酬 ${me.roundEarned} は累計へ加算されます。`:`あなたの今回報酬は ${me.roundEarned}、累計は ${me.campaignAfter} です。`}`;
+  const rows=state.players.slice().sort((a,b)=>b.campaignAfter-a.campaignAfter);
+  el("resultList").innerHTML=rows.map(p=>`<div class="result-row"><span>${p.face} ${p.name}　${p.profession==="saboteur"?"お邪魔者":"坑夫陣営"} / ${PROFESSIONS[p.profession].name}${p.jailed?"（牢屋）":""}<br><span class="small">勝利山分け +${p.goalShare}${p.profession==="slacker"?` / 廃棄${p.slackerDiscarded}枚 → +${p.slackerBonus}`:""}${p.profession==="geologist"?` / 結晶${boardCrystalCount()}個 → +${p.geologistBonus}`:""}</span></span><b>今回 +${p.roundEarned}<br>累計 ${p.campaignAfter}</b></div>`).join("");
+  setTimeout(()=>el("resultOverlay").classList.remove("hidden"),700);sound(won?"win":"lose")
+}
+function applyEndProfessionRewards(){
+  for(const p of state.players){if(p.jailed)continue;const treasureCards=p.hand.filter(c=>c.key==="treasure").length;p.treasures+=treasureCards*(p.profession==="collector"?REWARD_BALANCE.collectorTreasure:REWARD_BALANCE.treasure);if(p.profession==="police")p.reward+=Math.min(REWARD_BALANCE.policeCap,state.players.filter(x=>x.jailed).length);if(p.profession==="slacker"){p.slackerBonus=Math.min(4,Math.floor(p.slackerDiscarded/5));p.reward+=p.slackerBonus}if(p.profession==="demolitionist")p.reward+=Math.floor(p.demolitionUses/2);if(p.profession==="warden")p.reward+=Math.floor(p.wardenJails/2);if(p.profession==="geologist"){p.geologistBonus=Math.min(6,Math.floor(boardCrystalCount()/2));p.reward+=p.geologistBonus}}
+  for(const thief of state.players.filter(p=>p.profession==="thief"&&!p.jailed)){const targets=state.players.filter(p=>p!==thief&&!p.jailed).sort((a,b)=>(b.reward+b.treasures)-(a.reward+a.treasures)),t=targets[0];if(!t)continue;let stolen=Math.min(REWARD_BALANCE.thiefSteal,t.treasures+t.reward);while(stolen>0&&t.treasures>0){t.treasures--;thief.treasures++;stolen--}while(stolen>0&&t.reward>0){t.reward--;thief.reward++;stolen--}}
+}
+function aiRewardWeight(p,winner=p.alignment){
+  if(winner==="saboteur")return 1;
+  if(p.profession==="boss")return 1.6;
+  if(["geologist","slacker"].includes(p.profession))return .15;
+  return 1
+}
+function aiEconomicThreatScore(p,target){
+  let score=aiRewardWeight(target,target.alignment)*10+(target.reward||0)+(target.treasures||0)*1.2+(target.pathPlaced||0)*.15;
+  if(target.profession==="boss")score+=12;
+  if(favorValue(p,target)>0)score-=Math.min(3,favorValue(p,target)*.35);
+  return score
+}
+function simulatePathVictory(p,cardIndex,x,y,r){
+  const c=p.hand[cardIndex],d=c?def(c):null;
+  if(!c||!d||state.board[y][x])return false;
+  const previous=state.board[y][x];
+  state.board[y][x]={
+    kind:"path",paths:clone(d.paths),rotation:r,split:!!d.split,
+    oneWay:d.oneWay||null,reinforced:!!d.autoReinforce,
+    crystals:d.crystals||0,warp:c.key==="warpGate",
+    expiresRound:c.key==="pocketTunnel"?state.round+1:null,id:"ai-simulation"
+  };
+  const reachable=computeReachable(),gold=findGoldPosition();
+  const wins=!!(gold&&reachable.has(keyXY(gold.x,gold.y)));
+  state.board[y][x]=previous;
+  return wins
+}
+function findImmediateWinningPathPlan(p){
+  if(p.alignment!=="miner"||p.jailed||p.broken||state.pathUseCount>=state.pathLimit)return null;
+  const candidates=[];
+  for(let i=0;i<p.hand.length;i++){
+    const c=p.hand[i],d=def(c);
+    if(d.type!=="path"&&d.type!=="pathSpecial")continue;
+    for(let r=0;r<(p.profession==="engineer"?4:1);r++){
+      for(let y=0;y<stage().rows;y++)for(let x=0;x<stage().cols;x++){
+        const valid=c.key==="warpGate"?canPlaceWarpGateAI(x,y):canPlacePath(p,x,y,d,r,false);
+        if(!valid||!simulatePathVictory(p,i,x,y,r))continue;
+        candidates.push({cardId:c.id,x,y,r,score:scoreAiPath(p,x,y,d,r)})
+      }
+    }
+  }
+  candidates.sort((a,b)=>b.score-a.score);
+  return candidates[0]||null
+}
+function resolvePlannedPathAction(p,plan){
+  if(!plan)return null;
+  const cardIndex=p.hand.findIndex(c=>c.id===plan.cardId);
+  if(cardIndex<0)return null;
+  const c=p.hand[cardIndex],d=def(c);
+  const valid=c.key==="warpGate"
+    ?canPlaceWarpGateAI(plan.x,plan.y)
+    :canPlacePath(p,plan.x,plan.y,d,plan.r,false);
+  return valid?{kind:"path",card:cardIndex,x:plan.x,y:plan.y,r:plan.r}:null
+}
+function saboteurDefenseLooksSafe(){
+  const difficulty=state.aiDifficulty||3;
+  if(difficulty<4)return false;
+  const deckPressure=state.deck.length<=Math.max(2,Math.ceil(state.players.length*(difficulty===5?1.4:.8)));
+  const routeDistance=-networkProgressMetric();
+  return deckPressure&&routeDistance>=(difficulty===5?2:3)
+}
+function buildLateProfitPlan(p){
+  const difficulty=state.aiDifficulty||3;
+  if(difficulty<4||state.itemUsed||p.jailed)return null;
+
+  const winningPath=findImmediateWinningPathPlan(p);
+  const defenseSafe=p.alignment==="saboteur"&&saboteurDefenseLooksSafe();
+  if(!winningPath&&!defenseSafe)return null;
+
+  const allies=inferredAllies(p).filter(x=>!x.jailed);
+  if(!allies.length)return winningPath?{path:winningPath,withholdSupport:true}:null;
+
+  const chance=difficulty===5?.92:.34;
+  if(Math.random()>chance)return winningPath?{path:winningPath,withholdSupport:difficulty===5}:null;
+
+  const ranked=[...allies].sort((a,b)=>aiEconomicThreatScore(p,b)-aiEconomicThreatScore(p,a));
+  const target=ranked[0];
+  const idx=key=>p.hand.findIndex(c=>c.key===key);
+
+  // 勝利直前の投獄。勝敗条件を壊さず、山分け人数だけ減らす最も強い策略。
+  if(idx("jail")>=0&&!target.jailed){
+    return {
+      action:{kind:"player",card:idx("jail"),key:"jail",target:state.players.indexOf(target)},
+      path:winningPath,withholdSupport:true
+    }
+  }
+
+  // ボス職を奪い、自分の山分け比率を上げる。
+  const bossTarget=ranked.find(x=>x.profession==="boss");
+  if(idx("professionSwap")>=0&&bossTarget&&p.profession!=="boss"){
+    return {
+      action:{kind:"player",card:idx("professionSwap"),key:"professionSwap",target:state.players.indexOf(bossTarget)},
+      path:winningPath,withholdSupport:true
+    }
+  }
+
+  // 直接1点を奪える場合は、勝利直前に味方からも徴収する。
+  const richTarget=ranked.find(x=>x.reward>0);
+  if(idx("treasureTax")>=0&&richTarget){
+    return {
+      action:{kind:"player",card:idx("treasureTax"),key:"treasureTax",target:state.players.indexOf(richTarget)},
+      path:winningPath,withholdSupport:true
+    }
+  }
+
+  // 使える排除札がなくても、勝利直前や防衛終盤では救助を見送る。
+  return {path:winningPath,withholdSupport:true}
+}
+function aiTurn(){
+  if(state.phase!=="playing")return;const p=currentPlayer();aiExchange(p);p._profitPlan=buildLateProfitPlan(p);
+  const hasRush=p.hand.some(c=>c.key==="tunnelRush");
+  const order=p._profitPlan?.action?["item","path"]:(p.alignment==="miner"?["path","item"]:(hasRush?["item","path"]:(Math.random()<.5?["item","path"]:["path","item"])));
+  const step=i=>{
+    if(i>=order.length||state.phase!=="playing"){
+      if(!state.turnActionTaken)aiFallbackDiscard(p);
+      return setTimeout(advanceTurn,350)
+    }
+    const cat=order[i];
+    if(cat==="path"){
+      if(state.pathUseCount>=state.pathLimit)return step(i+1);
+      const a=chooseAiPathAction(p);if(!a)return step(i+1);
+      const c=p.hand[a.card];executeAiAction(p,a);
+      if(c){state.turnActionTaken=true;state.pathUseCount++;state.pathUsed=state.pathUseCount>=state.pathLimit}
+      state.reachable=computeReachable();renderAll();revealReachedGoals(p);if(checkEnd())return;
+      return setTimeout(()=>step(state.pathUseCount<state.pathLimit?i:i+1),520)
+    }
+    if(state.itemUsed)return step(i+1);
+    const a=chooseAiItemAction(p);if(!a)return step(i+1);
+    const c=p.hand[a.card];executeAiAction(p,a);if(c){state.turnActionTaken=true;state.itemUsed=true}
+    state.reachable=computeReachable();renderAll();revealReachedGoals(p);if(checkEnd())return;setTimeout(()=>step(i+1),520)
+  };step(0)
+}
+function aiExchange(p){
+  const difficulty=state.aiDifficulty||3;
+  let loops=0,cost=p.profession==="slacker"?3:2,maxLoops=Math.max(0,difficulty-1),threshold=12-difficulty;
+  while(state.deck.length&&p.hand.length>=threshold&&loops<maxLoops){
+    const choices=p.hand.map((c,i)=>({c,i})).filter(o=>o.c.key!=="contamination"&&o.c.key!=="treasure").sort((a,b)=>def(a.c).tier-def(b.c).tier).slice(0,cost);
+    if(choices.length<cost)break;
+    choices.map(o=>o.i).sort((a,b)=>b-a).forEach(i=>p.hand.splice(i,1));draw(p,state.deck);loops++
+  }
+  if(loops){state.turnActionTaken=true;state.exchangeCountThisTurn+=loops;if(p.profession==="slacker")p.slackerDiscarded+=loops*cost;addLog(`${p.name} は交換ドローを${loops}回行った。`)}
+}
+function aiFallbackDiscard(p){
+  if(!p.hand.length)return false;
+  let i=p.hand.findIndex(c=>c.key!=="treasure"&&c.key!=="contamination");if(i<0)i=p.hand.findIndex(c=>c.key!=="contamination");if(i<0)i=0;
+  const c=p.hand[i];
+  if(c.key==="contamination"){const n=p.hand.length;state.scrap.push(...p.hand);p.hand=[];addLog(`${p.name} は汚染カードと手札${n}枚をすべて捨てた。`,"bad")}
+  else{p.hand.splice(i,1);state.scrap.push(c);if(p.profession==="slacker")p.slackerDiscarded++;addLog(`${p.name} は行動不能のため「${def(c).name}」を捨てた。`)}
+  state.turnActionTaken=true;state.discardCountThisTurn=1;return true
+}
+function chooseAiPathAction(p){
+  if(p.jailed||p.broken)return null;
+  if(p._profitPlan?.path){
+    const planned=resolvePlannedPathAction(p,p._profitPlan.path);
+    p._profitPlan.path=null;
+    if(planned)return planned
+  }
+  const candidates=[],difficulty=state.aiDifficulty||3;
+  for(let i=0;i<p.hand.length;i++){
+    const c=p.hand[i],d=def(c);if(d.type!=="path"&&d.type!=="pathSpecial")continue;
+    for(let r=0;r<(p.profession==="engineer"?4:1);r++)for(let y=0;y<stage().rows;y++)for(let x=0;x<stage().cols;x++){
+      const ok=c.key==="warpGate"?canPlaceWarpGateAI(x,y):canPlacePath(p,x,y,d,r,false);if(!ok)continue;
+      candidates.push({kind:"path",card:i,x,y,r,score:scoreAiPath(p,x,y,d,r)})
+    }
+  }
+  if(!candidates.length)return null;
+  candidates.sort((a,b)=>b.score-a.score);
+  if(difficulty===1)return candidates[Math.floor(Math.random()*candidates.length)];
+  const poolSize=difficulty===2?Math.min(12,candidates.length):difficulty===3?Math.min(5,candidates.length):difficulty===4?Math.min(2,candidates.length):1;
+  return candidates[Math.floor(Math.random()*poolSize)]
+}
+function chooseAiItemAction(p){
+  const h=p.hand,idx=k=>h.findIndex(c=>c.key===k),tiles=listPathTiles().filter(o=>true),unknown=stage().goals.map(g=>({g,t:state.board[g.y][g.x]})).filter(o=>!knowsGoal(p,o.t)),difficulty=state.aiDifficulty||3;
+  if(p._profitPlan?.action){
+    const action=p._profitPlan.action;
+    p._profitPlan.action=null;
+    return action
+  }
+  if((p.jailed||p.broken)&&idx("emergencyKit")>=0)return{kind:"self",card:idx("emergencyKit")};
+  if(p.jailed&&idx("key")>=0)return{kind:"player",card:idx("key"),key:"key",target:state.players.indexOf(p)};
+  if(p.broken&&idx("repair")>=0)return{kind:"player",card:idx("repair"),key:"repair",target:state.players.indexOf(p)};
+  if((p.jailed||p.broken)&&idx("rescueTeam")>=0)return{kind:"player",card:idx("rescueTeam"),key:"rescueTeam",target:state.players.indexOf(p)};
+
+  const allies=inferredAllies(p);
+  const owed=state.players.filter(x=>x!==p&&favorValue(p,x)>0&&inferredAlignment(p,x)!== (p.alignment==="miner"?"saboteur":"miner"));
+  const supportPool=[...new Set([...allies,...owed])];
+  const brokenAllies=supportPool.filter(x=>x.broken),jailedAllies=supportPool.filter(x=>x.jailed),troubledAllies=supportPool.filter(x=>x.broken||x.jailed);
+  if(!p._profitPlan?.withholdSupport){
+    if(idx("massRepair")>=0&&brokenAllies.length>=2)return{kind:"self",card:idx("massRepair")};
+    if(idx("massEscape")>=0&&jailedAllies.length>=2)return{kind:"self",card:idx("massEscape")};
+    if(idx("rescueTeam")>=0&&troubledAllies.length){
+      const t=chooseSupportTarget(p,troubledAllies);return{kind:"player",card:idx("rescueTeam"),key:"rescueTeam",target:state.players.indexOf(t)}
+    }
+    if(idx("key")>=0&&jailedAllies.length){
+      const t=chooseSupportTarget(p,jailedAllies);return{kind:"player",card:idx("key"),key:"key",target:state.players.indexOf(t)}
+    }
+    if(idx("repair")>=0&&brokenAllies.length){
+      const t=chooseSupportTarget(p,brokenAllies);return{kind:"player",card:idx("repair"),key:"repair",target:state.players.indexOf(t)}
+    }
+  }
+
+  const enemies=inferredEnemies(p);
+  if(enemies.length){
+    const target=chooseGrudgeTarget(p,enemies)||enemies[0];
+    if(idx("jail")>=0&&!target.jailed)return{kind:"player",card:idx("jail"),key:"jail",target:state.players.indexOf(target)};
+    if(idx("sabotage")>=0&&!target.broken)return{kind:"player",card:idx("sabotage"),key:"sabotage",target:state.players.indexOf(target)};
+    if(idx("timeLock")>=0)return{kind:"player",card:idx("timeLock"),key:"timeLock",target:state.players.indexOf(target)};
+    if(idx("treasureTax")>=0&&target.reward>0)return{kind:"player",card:idx("treasureTax"),key:"treasureTax",target:state.players.indexOf(target)}
+  }
+
+  const revengeCandidates=state.players.filter(x=>x!==p&&grudgeValue(p,x)>0&&inferredAlignment(p,x)!==p.alignment);
+  const revenge=chooseGrudgeTarget(p,revengeCandidates,true);
+  if(revenge){
+    if(idx("jail")>=0&&!revenge.jailed)return{kind:"player",card:idx("jail"),key:"jail",target:state.players.indexOf(revenge)};
+    if(idx("sabotage")>=0&&!revenge.broken)return{kind:"player",card:idx("sabotage"),key:"sabotage",target:state.players.indexOf(revenge)};
+    if(idx("timeLock")>=0)return{kind:"player",card:idx("timeLock"),key:"timeLock",target:state.players.indexOf(revenge)};
+    if(idx("treasureTax")>=0&&revenge.reward>0)return{kind:"player",card:idx("treasureTax"),key:"treasureTax",target:state.players.indexOf(revenge)}
+  }
+
+  if(difficulty===1&&Math.random()<.42)return null;
+  if(difficulty===2&&Math.random()<.2)return null;
+
+  if(p.alignment==="saboteur"){
+    const targets=state.players.filter(x=>x!==p&&inferredAlignment(p,x)!==p.alignment),target=chooseGrudgeTarget(p,targets);
+    if(idx("jail")>=0&&targets.some(x=>!x.jailed)){const t=target&&!target.jailed?target:targets.find(x=>!x.jailed);return{kind:"player",card:idx("jail"),key:"jail",target:state.players.indexOf(t)}};
+    if(idx("timeLock")>=0&&targets.length)return{kind:"player",card:idx("timeLock"),key:"timeLock",target:state.players.indexOf(target||targets[0])};
+    if(idx("blaster")>=0&&tiles.length>4)return{kind:"line",card:idx("blaster"),target:tiles.sort((a,b)=>b.x-a.x)[0],axis:Math.random()<.5?"row":"col"};
+    if(idx("xBomb")>=0&&tiles.length>3)return{kind:"xbomb",card:idx("xBomb"),target:tiles.sort((a,b)=>b.x-a.x)[0]};
+    if(idx("chainCharge")>=0&&tiles.length>2)return{kind:"chain",card:idx("chainCharge"),target:tiles.sort((a,b)=>b.x-a.x)[0]};
+    if(idx("collapse")>=0&&tiles.length)return{kind:"destroy",card:idx("collapse"),target:tiles.sort((a,b)=>b.x-a.x)[0]};
+    if(idx("sabotage")>=0&&targets.some(x=>!x.broken)){const t=target&&!target.broken?target:targets.find(x=>!x.broken);return{kind:"player",card:idx("sabotage"),key:"sabotage",target:state.players.indexOf(t)}}
+  }else{
+    const pathCount=h.filter(c=>cardCategory(c)==="path").length;
+    if(idx("tunnelRush")>=0&&pathCount>=1&&state.pathLimit<3)return{kind:"self",card:idx("tunnelRush")};
+    if(idx("pathSupply")>=0&&pathCount<2&&state.deck.length)return{kind:"self",card:idx("pathSupply")};
+    const possibleFriends=state.players.filter(x=>x!==p&&inferredAlignment(p,x)!=="saboteur");
+    const broken=chooseSupportTarget(p,possibleFriends.filter(x=>x.broken));
+    if(idx("repair")>=0&&broken)return{kind:"player",card:idx("repair"),key:"repair",target:state.players.indexOf(broken)};
+    const jailed=chooseSupportTarget(p,possibleFriends.filter(x=>x.jailed));
+    if(idx("key")>=0&&jailed)return{kind:"player",card:idx("key"),key:"key",target:state.players.indexOf(jailed)};
+    for(const goalCard of ["goalInspect","crystalCompass","surveyDrone"]){
+      if(idx(goalCard)>=0&&unknown.length)return{kind:"goal",card:idx(goalCard),target:unknown[Math.floor(Math.random()*unknown.length)].g}
+    }
+    if(idx("reinforce")>=0&&tiles.length)return{kind:"reinforce",card:idx("reinforce"),target:tiles[Math.floor(Math.random()*tiles.length)]}
+  }
+  const unknownJobs=state.players.filter(x=>x!==p&&!professionView(p,x).known);
+  if(idx("professionInspect")>=0&&unknownJobs.length&&Math.random()<(.16+difficulty*.08)){
+    const target=[...unknownJobs].sort((a,b)=>grudgeValue(p,b)-grudgeValue(p,a))[0];
+    return{kind:"player",card:idx("professionInspect"),key:"professionInspect",target:state.players.indexOf(target)}
+  }
+  if(idx("handSwap")>=0&&state.players.length>1&&Math.random()<(.04+difficulty*.045)){
+    const targets=state.players.filter(x=>x!==p&&inferredAlignment(p,x)!==p.alignment&&x.hand.length>p.hand.length+1);
+    if(targets.length){const target=chooseGrudgeTarget(p,targets)||targets[0];return{kind:"player",card:idx("handSwap"),key:"handSwap",target:state.players.indexOf(target)}}
+  }
+  if(idx("professionSwap")>=0&&state.players.length>1&&Math.random()<(.04+difficulty*.05)){
+    const targets=state.players.filter(x=>x!==p&&inferredAlignment(p,x)!==p.alignment);
+    if(targets.length){const target=chooseGrudgeTarget(p,targets)||targets[0];return{kind:"player",card:idx("professionSwap"),key:"professionSwap",target:state.players.indexOf(target)}}
+  }
+  const selfKeys=["careerChange","mimicChest","cursedDice","goldMagnet","pathSupply","tunnelRush","linkedExcavation2","linkedExcavation3","supplyDrop","rescueContainer","drainPump","mixedCargo","surveyPack","salvageLicense","casinoHandle","clockworkWinder","ghostInvitation","flashFlood","iceChime","ruinResonator","mirrorShard","abyssTicket","stageRoulette","tunnelLottery","itemLottery","oracleStone"];
+  const si=h.findIndex(c=>selfKeys.includes(c.key));if(si>=0)return{kind:"self",card:si};return null
+}
+function canPlaceWarpGateAI(x,y){if(!inBounds(x,y)||state.board[y][x])return false;if(stage().moreChaos)return true;for(const d of DIRS){const n=neighbor(x,y,d),t=n.valid?state.board[n.y][n.x]:null;if(t&&t.kind!=="goal"&&state.reachable.has(keyXY(n.x,n.y)))return true}return false}
+function scoreAiPath(p,x,y,d,r){const difficulty=state.aiDifficulty||3,distance=Math.min(...stage().goals.map(g=>Math.abs(g.x-x)+Math.abs(g.y-y))),progress=stage().start.x===0?x*7-distance*2:-distance,ports=rotatePaths(d.paths||[],r).length,noise=Math.random()*(6-difficulty)*4;return p.alignment==="miner"?progress+ports*2+noise:-progress+(ports===1?10:0)+noise}
+function executeAiAction(p,a){
+  const c=p.hand[a.card];if(!c)return;
+  let cardAlreadyRemoved=false;
+  if(a.kind==="path"){
+    const d=def(c),before=networkProgressMetric();state.board[a.y][a.x]={kind:"path",paths:clone(d.paths),rotation:a.r,split:!!d.split,oneWay:d.oneWay||null,reinforced:!!d.autoReinforce,crystals:d.crystals||0,weatherproof:!!d.weatherproof,returnOnDestroy:!!d.returnOnDestroy,ownerUid:p.uid,cardKey:c.key,warp:c.key==="warpGate",expiresRound:d.expiresRounds?state.round+d.expiresRounds:(c.key==="pocketTunnel"?state.round+1:null),id:id()};state.reachable=computeReachable();recordPathPlacement(p,a.x,a.y,before);if(hasGimmick("ruins")&&Math.random()<.3)spawnRuinNeighbor(a.x,a.y,1);if(hasGimmick("mirror"))spawnMirrorCopy(a.x,a.y,state.board[a.y][a.x]);applyPlacedCardEffects(p,c,a.x,a.y);addLog(`${p.name} は道を配置した。`);spawnDust(a.x,a.y);maybeNpcChat(networkProgressMetric()>before?"good":"bad",p)
+  }else if(a.kind==="destroy"){removeDestructiblePath(p,a.target.x,a.target.y);addLog(`${p.name} は落盤を起こした。`,"bad")}
+  else if(a.kind==="chain"){const pts=[a.target,...shuffle(DIRS.map(d=>neighbor(a.target.x,a.target.y,d)).filter(n=>n.valid)).slice(0,2)];for(const q of pts){const t=state.board[q.y][q.x];if(t?.kind==="path"&&!t.reinforced)removeDestructiblePath(p,q.x,q.y)}addLog(`${p.name} は連鎖爆薬を起爆した。`,"bad")}
+  else if(a.kind==="xbomb"){for(const [dx,dy] of [[0,0],[1,0],[-1,0],[0,1],[0,-1]]){const x=a.target.x+dx,y=a.target.y+dy,t=inBounds(x,y)?state.board[y][x]:null;if(t?.kind==="path"&&!t.reinforced)removeDestructiblePath(p,x,y)}addLog(`${p.name} はXボムを起爆した。`,"bad")}
+  else if(a.kind==="line"){if(a.axis==="row")for(let x=0;x<stage().cols;x++){const t=state.board[a.target.y][x];if(t?.kind==="path"&&!t.reinforced)removeDestructiblePath(p,x,a.target.y)}else for(let y=0;y<stage().rows;y++){const t=state.board[y][a.target.x];if(t?.kind==="path"&&!t.reinforced)removeDestructiblePath(p,a.target.x,y)}addLog(`${p.name} はブラスターを放った。`,"bad")}
+  else if(a.kind==="player"){
+    const t=state.players[a.target];
+    if(a.key==="jail"){const fresh=!t.jailed;t.jailed=true;addGrudge(t,p,3);observePublicBehavior(p,"harm",1.5);if(p.profession==="warden")p.wardenJails++;if(fresh&&t.alignment==="miner")recordSabotage(p,2)}
+    if(a.key==="sabotage"){const fresh=!t.broken;t.broken=true;addGrudge(t,p,2);observePublicBehavior(p,"harm",1);if(fresh&&t.alignment==="miner")recordSabotage(p,1)}
+    if(a.key==="repair"){t.broken=false;addFavor(t,p,2);observePublicBehavior(p,"help",1)}
+    if(a.key==="rescueTeam"){
+      if(t.jailed)t.jailed=false;else if(t.broken)t.broken=false;
+      addFavor(t,p,2)
+    }
+    if(a.key==="key"){t.jailed=false;addFavor(t,p,2)}
+    if(a.key==="timeLock"){t.itemLockedNext=true;addGrudge(t,p,2);if(t.alignment==="miner")recordSabotage(p,1)}
+    if(a.key==="treasureTax"&&t.reward>0){t.reward--;p.reward++;addGrudge(t,p,2)}
+    if(a.key==="professionInspect"){rememberProfession(p,t)}
+    if(a.key==="handSwap"){
+      p.hand.splice(p.hand.indexOf(c),1);cardAlreadyRemoved=true;
+      const mine=p.hand;p.hand=t.hand;t.hand=mine;addGrudge(t,p,1)
+    }
+    if(a.key==="professionSwap"){
+      const myJob=p.profession,theirJob=t.profession;forgetProfessionKnowledge(p);forgetProfessionKnowledge(t);setProfession(p,theirJob);setProfession(t,myJob);rememberProfession(p,t);rememberProfession(t,p);addGrudge(t,p,1)
+    }
+    const secretSuffix=a.key==="professionInspect"?" 結果は本人だけが知る。":a.key==="handSwap"?" 手札内容は公開されない。":"";
+    addLog(`${p.name} は ${t.name} に「${def(c).name}」を使った。${secretSuffix}`,["repair","key","rescueTeam"].includes(a.key)?"good":"bad")
+  }
+  else if(a.kind==="goal"){
+    const t=state.board[a.target.y][a.target.x];inspectGoalPrivately(t,p);npcShareGoal(p,t);
+    if(p.profession==="cartographer"&&!p.cartographerBonusClaimed){p.cartographerBonusClaimed=true;p.reward++}
+    if(c.key==="crystalCompass"&&state.deck.length)draw(p,state.deck);
+    addLog(`${p.name} は「${def(c).name}」で選んだゴールをひそかに調査した。結果は共有されない。`)
+  }
+  else if(a.kind==="reinforce"){a.target.t.reinforced=true;addLog(`${p.name} は道を補強した。`)}
+  else if(a.kind==="self"){
+    if(c.key==="careerChange"){const choices=Object.keys(PROFESSIONS).filter(k=>k!==p.profession&&(!stage().free||k!=="warper"));forgetProfessionKnowledge(p);setProfession(p,choices[Math.floor(Math.random()*choices.length)])}
+    else if(c.key==="mimicChest"){if(Math.random()<.7)p.reward+=1;else p.hand.push(card("contamination"))}
+    else if(c.key==="emergencyKit"){p.jailed=false;p.broken=false}
+    else if(c.key==="massRepair"){for(const t of state.players)if(t.broken){t.broken=false;if(t!==p)addFavor(t,p,1)}}
+    else if(c.key==="massEscape"){for(const t of state.players)if(t.jailed){t.jailed=false;if(t!==p)addFavor(t,p,1)}}
+    else if(c.key==="goldMagnet"){const picks=[];if(state.deck.length)picks.push(state.deck.pop());if(state.deck.length)picks.push(state.deck.pop());picks.sort((a,b)=>def(b).tier-def(a).tier);if(picks[0])p.hand.push(picks[0]);if(picks[1])state.deck.unshift(picks[1])}
+    else if(c.key==="cursedDice"){const r=1+Math.floor(Math.random()*6);if(r===1)p.jailed=true;else if(r===2)p.hand.push(card("contamination"));else if(r===3)p.reward++;else if(r===4){draw(p,state.deck);draw(p,state.deck)}else if(r===5)p.broken=false;else p.reward+=2}
+    else if(c.key==="pathSupply"){drawMatchingCards(p,x=>cardCategory(x)==="path",2)}
+    else if(c.key==="tunnelRush"){state.pathLimit=3;state.pathUsed=state.pathUseCount>=state.pathLimit;drawMatchingCards(p,x=>cardCategory(x)==="path",2)}
+    else if(c.key==="linkedExcavation2"||c.key==="linkedExcavation3"){autoBuildChain(p,c.key==="linkedExcavation3"?3:2)}
+    else if(c.key==="supplyDrop"){drawItemCards(p,2)}
+    else if(c.key==="rescueContainer"){drawSupportCards(p,2)}
+    else if(c.key==="drainPump"){for(let y=0;y<stage().rows;y++)for(let x=0;x<stage().cols;x++)if(state.board[y][x]?.kind==="hazard")state.board[y][x]=null}
+    else if(c.key==="mixedCargo"){drawMatchingCards(p,x=>cardCategory(x)==="path",1);drawItemCards(p,1)}
+    else if(c.key==="surveyPack"){drawIntelCards(p,2)}
+    else if(c.key==="salvageLicense"){if(!recoverScrapItem(p))drawItemCards(p,1)}
+    else if(c.key==="casinoHandle"){shiftColumnOneCell()}
+    else if(c.key==="clockworkWinder"){rotateAllPathsOnce()}
+    else if(c.key==="ghostInvitation"){swapUnknownGoalsOnce()}
+    else if(c.key==="flashFlood"){createTemporaryWater(2,2)}
+    else if(c.key==="iceChime"){freezeRandomPaths(2)}
+    else if(c.key==="ruinResonator"){if(state.lastPlaced)spawnRuinNeighbor(state.lastPlaced.x,state.lastPlaced.y,2)}
+    else if(c.key==="mirrorShard"){if(state.lastPlaced&&state.board[state.lastPlaced.y]?.[state.lastPlaced.x])spawnMirrorCopy(state.lastPlaced.x,state.lastPlaced.y,state.board[state.lastPlaced.y][state.lastPlaced.x],true)}
+    else if(c.key==="abyssTicket"){shiftRandomRowOneCell()}
+    else if(c.key==="stageRoulette"){triggerStageRoulette(p)}
+    else if(c.key==="tunnelLottery"){drawMatchingCards(p,x=>cardCategory(x)==="path",3);p.hand.push(card("contamination"))}
+    else if(c.key==="itemLottery"){drawItemCards(p,3);const opts=p.hand.filter(x=>x.id!==c.id);if(opts.length){const lost=opts[Math.floor(Math.random()*opts.length)];p.hand.splice(p.hand.indexOf(lost),1);state.scrap.push(lost)}}
+    else if(c.key==="oracleStone"){for(const g of stage().goals){const t=state.board[g.y][g.x];if(!knowsGoal(p,t))inspectGoalPrivately(t,p)}p.hand.push(card("contamination"))}
+    addLog(`${p.name} は「${def(c).name}」を使った。`)
+  }
+  recordDemolitionUse(p,c);
+  if(a.kind!=="goal"&&Math.random()<.42)maybeNpcChat(["destroy","chain","xbomb","line"].includes(a.kind)?"bad":"ambient",p);
+  playCardAnimation(c);if(!cardAlreadyRemoved){const ci=p.hand.indexOf(c);if(ci>=0)p.hand.splice(ci,1)}
+}
+function listPathTiles(){const out=[];for(let y=0;y<stage().rows;y++)for(let x=0;x<stage().cols;x++){const t=state.board[y][x];if(t?.kind==="path")out.push({x,y,t})}return out}
+
+function updateControls(){
+  if(!state)return;const me=human(),c=getSelectedCard(),my=currentPlayer().isHuman&&state.phase==="playing",cost=me.profession==="slacker"?3:2;
+  el("rotateBtn").disabled=!(my&&c&&state.pathUseCount<state.pathLimit&&me.profession==="engineer"&&["path","pathSpecial"].includes(def(c).type));
+  el("discardBtn").disabled=!(my&&c&&!state.exchangeMode&&state.discardCountThisTurn<1);
+  el("exchangeBtn").disabled=!(my&&state.deck.length&&me.hand.filter(c=>c.key!=="contamination").length>=cost);
+  el("exchangeBtn").textContent=state.exchangeMode?`交換実行 ${state.exchangeSelected.size}/${cost}`:"交換ドロー";
+  el("cancelExchangeBtn").hidden=!state.exchangeMode;
+  el("cancelExchangeBtn").disabled=!my;
+  const absoluteEmpty=me.hand.length===0&&state.deck.length===0;
+  el("endTurnBtn").disabled=!(my&&(state.turnActionTaken||absoluteEmpty));
+  el("endTurnBtn").title=state.turnActionTaken||absoluteEmpty?"手番を終了する":"カード使用・廃棄・交換ドローのいずれかが必要です";
+  if(!my)el("hint").textContent="ほかのプレイヤーが行動しています。";
+  else if(state.exchangeMode)el("hint").textContent=`汚染カード以外を${cost}枚選択。交換は同じ手番に何度でも可能です。`;
+  else if(!c)el("hint").textContent=`道 ${state.pathUseCount}/${state.pathLimit} / アイテム ${state.itemUsed?"使用済み":"使用可能"} / 廃棄 ${state.discardCountThisTurn?"使用済み":"1回可能"}。何もせず終了はできません。`;
+  else if(cardCategory(c)==="path")el("hint").textContent=me.profession==="engineer"?"配置先を選択。鉱山技師だけが手札の道を回転できます。":"配置先を選択。手札の道は固定方向です。";
+  else el("hint").textContent="アイテムの対象を選択してください。"
+}
+
+function openGenericTarget(icon,title,text,choices,callback){
+  el("targetIcon").textContent=icon==="beam"?"━":icon==="cage"?"▥":icon==="coins"?"🪙":icon;
+  el("targetTitle").textContent=title;el("targetText").textContent=text;el("targetList").innerHTML="";
+  choices.forEach(ch=>{
+    const b=document.createElement("button");b.className="target-btn";b.textContent=ch.label;
+    b.addEventListener("click",()=>{el("targetOverlay").classList.add("hidden");callback(ch.value)});
+    el("targetList").appendChild(b)
+  });
+  el("targetOverlay").classList.remove("hidden")
+}
+
+function playCardAnimation(c,text=null){
+  const actor=state?currentPlayer().name:"プレイヤー",d=def(c);
+  const caption=text||lastNarration||`${actor}が「${d.name}」を使用。`;
+  const detail=cardCategory(c)==="item"?d.desc:"";
+  playRawAnimation(animSettings[c.key].object,Math.max(180,animSettings[c.key].duration*animationSpeedMultiplier),caption,detail)
+}
+function playRawAnimation(object,duration,caption="",detail=""){
+  animationLayer.innerHTML="";animationLayer.classList.remove("hidden");
+  if(object==="beam"){
+    const b=document.createElement("div");b.className="anim-beam";b.style.setProperty("--dur",duration+"ms");animationLayer.appendChild(b)
+  }else if(object==="cage"){
+    const b=document.createElement("div");b.className="anim-cage";b.style.setProperty("--dur",duration+"ms");animationLayer.appendChild(b)
+  }else if(object==="coins"){
+    const wrap=document.createElement("div");wrap.className="anim-coins";
+    for(let i=0;i<18;i++){const s=document.createElement("span");s.textContent="🪙";s.style.setProperty("--x",`${(Math.random()-.5)*innerWidth*.7}px`);s.style.setProperty("--y",`${(Math.random()-.5)*innerHeight*.65}px`);s.style.setProperty("--r",`${Math.random()*720-360}deg`);s.style.setProperty("--dur",duration+"ms");wrap.appendChild(s)}
+    animationLayer.appendChild(wrap)
+  }else{
+    const o=document.createElement("div");o.className="anim-object";o.textContent=OBJECTS[object]||"✨";o.style.setProperty("--dur",duration+"ms");animationLayer.appendChild(o)
+  }
+  if(caption){const cap=document.createElement("div");cap.className="animation-caption";const main=document.createElement("b");main.textContent=caption;cap.appendChild(main);if(detail){const small=document.createElement("small");small.textContent=`効果：${detail}`;cap.appendChild(small)}cap.style.setProperty("--dur",duration+"ms");animationLayer.appendChild(cap)}
+  if(["bomb","xbomb","beam","thunder"].includes(object))shakeAndFlash();
+  sound(["bomb","xbomb","beam"].includes(object)?"boom":object==="portal"?"portal":"card");
+  setTimeout(()=>animationLayer.classList.add("hidden"),duration+100)
+}
+function shakeAndFlash(){
+  el("boardPanel").classList.remove("screen-shake");void el("boardPanel").offsetWidth;el("boardPanel").classList.add("screen-shake");
+  el("flash").classList.remove("go");void el("flash").offsetWidth;el("flash").classList.add("go")
+}
+function spawnDust(x,y){
+  const cell=[...boardEl.children].find(c=>+c.dataset.x===x&&+c.dataset.y===y);if(!cell)return;
+  for(let i=0;i<12;i++){const d=document.createElement("span");d.className="dust";d.style.left=(cell.offsetLeft+38)+"px";d.style.top=(cell.offsetTop+38)+"px";d.style.setProperty("--dx",`${(Math.random()-.5)*90}px`);d.style.setProperty("--dy",`${(Math.random()-.5)*75}px`);boardEl.appendChild(d);setTimeout(()=>d.remove(),700)}
+}
+let audioCtx=null;
+function sound(type){
+  try{
+    audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain(),now=audioCtx.currentTime;
+    const m={turn:[440,.06,"sine"],tick:[300,.05,"square"],bad:[95,.13,"square"],boom:[58,.22,"sawtooth"],portal:[190,.42,"sine"],card:[260,.11,"triangle"],win:[720,.4,"sine"],lose:[105,.48,"sawtooth"]}[type]||[240,.08,"sine"];
+    o.type=m[2];o.frequency.setValueAtTime(m[0],now);
+    if(type==="boom")o.frequency.exponentialRampToValueAtTime(35,now+m[1]);
+    if(type==="portal")o.frequency.exponentialRampToValueAtTime(520,now+m[1]);
+    if(type==="win")o.frequency.exponentialRampToValueAtTime(1050,now+m[1]);
+    g.gain.setValueAtTime(.045,now);g.gain.exponentialRampToValueAtTime(.001,now+m[1]);o.connect(g);g.connect(audioCtx.destination);o.start(now);o.stop(now+m[1])
+  }catch{}
+}
+
+
+function buildToggleLists(){
+  const cg=el("cardToggleGrid"),pg=el("professionToggleGrid");if(!cg||!pg)return;
+  cg.innerHTML="";Object.entries(CARD_DEFS).forEach(([k,d])=>{const label=document.createElement("label");const checked=enabledCardKeys.has(k),lockedWeird=d.weird&&!weirdPackEnabled;if(lockedWeird)label.classList.add("locked");label.innerHTML=`<input type="checkbox" data-card-toggle="${k}" ${checked?"checked":""} ${lockedWeird?"disabled":""}> <span><b>${d.name}</b>${d.weird?" <small>異常</small>":""}<br>Tier ${d.tier} / ${typeLabel(d)}</span>`;cg.appendChild(label)});
+  pg.innerHTML="";Object.entries(PROFESSIONS).forEach(([k,d])=>{const label=document.createElement("label");const locked=k==="miner"||k==="saboteur";if(locked)label.classList.add("locked");const note=k==="miner"?"一定人数を保証":k==="saboteur"?"敵対職として人数を保証":"ランダム候補";label.innerHTML=`<input type="checkbox" data-prof-toggle="${k}" ${enabledProfessionKeys.has(k)||locked?"checked":""} ${locked?"disabled":""}> <span>${d.icon} <b>${d.name}</b><br>${note}</span>`;pg.appendChild(label)});
+  cg.querySelectorAll("[data-card-toggle]").forEach(i=>i.addEventListener("change",()=>{i.checked?enabledCardKeys.add(i.dataset.cardToggle):enabledCardKeys.delete(i.dataset.cardToggle)}));
+  pg.querySelectorAll("[data-prof-toggle]").forEach(i=>i.addEventListener("change",()=>{i.checked?enabledProfessionKeys.add(i.dataset.profToggle):enabledProfessionKeys.delete(i.dataset.profToggle)}))
+}
+function buildRulebook(){
+  const category=el("rulebookCategory").value,q=el("rulebookSearch").value.trim().toLowerCase(),items=[];
+  if(category==="all"||category==="rules")items.push({cat:"基本ルール",name:"手番と配置",meta:"1ターンに道1枚・アイテム1枚",desc:"手番開始時に1枚引きます。道カードとアイテムカードはそれぞれ1枚まで、好きな順で使用できます。2枚捨てて1枚引く交換ドローは何度でも行えます。怠け者だけ3枚必要です。通常坑道では、道は出発地点から到達済みの坑道へ正しく接続しなければ置けません。ゴールは終端です。ゴール調査は対象を自分で選び、情報は使用者だけが知ります。勝利時は人数に応じた報酬プールを牢屋にいない勝者で山分けし、続けて遊ぶと累計報酬を引き継げます。"});
+  if(category==="all"||category==="cards")Object.entries(CARD_DEFS).forEach(([k,d])=>items.push({cat:"カード",name:d.name,meta:`Tier ${d.tier} / ${typeLabel(d)}${k==="crossSplit"?" / 初期無効":""}${d.weird?" / 異常カードパック":""}`,desc:d.desc,paths:d.paths}));
+  if(category==="all"||category==="professions")Object.values(PROFESSIONS).forEach(d=>items.push({cat:"職業",name:`${d.icon} ${d.name}`,meta:d.name==="炭鉱夫"?"一定人数を保証":d.name==="お邪魔者"?"敵対職として人数を保証":"ゲーム開始時にランダム",desc:d.desc}));
+  if(category==="all"||category==="stages")Object.values(STAGES).forEach(d=>items.push({cat:"ステージ",name:`${d.icon} ${d.name}`,meta:d.isCustom?"カスタム":"固定ステージ",desc:d.desc}));
+  const filtered=items.filter(i=>(i.name+" "+i.meta+" "+i.desc).toLowerCase().includes(q));
+  el("rulebookList").innerHTML=filtered.map(i=>`<article class="rule-entry"><b>${i.name}</b><div class="meta">${i.cat} / ${i.meta}</div><p>${i.desc}</p>${i.paths?`<div class="rule-path">${i.paths.map(p=>`<span>${p.toUpperCase()}</span>`).join("")}</div>`:""}</article>`).join("")||'<div class="small">該当項目がありません。</div>'
+}
+function openRulebook(){buildRulebook();el("rulebookOverlay").classList.remove("hidden")}
+
+function openOnline(){el("onlineOverlay").classList.remove("hidden");renderOnlineRoom()}
+function setOnlineStatus(text){el("onlineStatus").textContent=text}
+function loadSocketClient(){
+  return new Promise((resolve,reject)=>{if(window.io)return resolve();const s=document.createElement("script");s.src="/socket.io/socket.io.js";s.onload=resolve;s.onerror=()=>reject(new Error("Socket.IOクライアントを読み込めません"));document.head.appendChild(s)})
+}
+async function connectOnline(){
+  try{
+    if(location.protocol==="file:")throw new Error("単体HTMLでは接続できません。ZIP内サーバーを起動し、http://localhost:3000 から開いてください。");
+    setOnlineStatus("接続中...");await loadSocketClient();
+    onlineSocket=window.io();
+    onlineSocket.on("connect",()=>{onlineState.connected=true;setOnlineStatus("サーバー接続済み");el("createRoomBtn").disabled=false;el("joinRoomBtn").disabled=false;onlineSocket.emit("set_profile",{name:el("onlinePlayerName").value})});
+    onlineSocket.on("profile",p=>{onlineState.rating=p.rating;onlineState.games=p.games;el("onlineRating").textContent=p.rating;el("onlineGames").textContent=`${p.games}戦`});
+    onlineSocket.on("room_state",r=>{onlineState.roomCode=r.code;onlineState.isHost=r.hostId===onlineSocket.id;onlineState.players=r.players;onlineState.npcCount=Number(r.npcCount)||0;onlineState.aiDifficulty=Number(r.aiDifficulty)||3;el("onlineNpcCount").value=String(onlineState.npcCount);el("onlineAiDifficulty").value=String(onlineState.aiDifficulty);renderOnlineRoom()});
+    onlineSocket.on("chat_message",m=>appendChat(m.name,m.text));
+    onlineSocket.on("system_message",m=>appendChat("SYSTEM",m.text));
+    onlineSocket.on("rating_update",p=>{onlineState.rating=p.rating;onlineState.games=p.games;el("onlineRating").textContent=p.rating;el("onlineGames").textContent=`${p.games}戦`});
+    onlineSocket.on("online_match_start",payload=>{appendChat("SYSTEM","ホスト進行の対戦が開始されました。盤面完全同期はβです。");if(onlineState.isHost)startOnlineHostMatch(payload)});
+    onlineSocket.on("connect_error",()=>setOnlineStatus("接続失敗。サーバーを確認してください。"))
+  }catch(e){setOnlineStatus(e.message)}
+}
+function renderOnlineRoom(){
+  el("currentRoomCode").textContent=onlineState.roomCode||"-";
+  const npcCount=onlineState.roomCode?onlineState.npcCount:clampInt("onlineNpcCount",0,6,0),humanRows=onlineState.players.map(p=>`<div class="room-player"><span>${p.name}${p.id===onlineSocket?.id?"（あなた）":""}</span><b>${p.rating}</b></div>`),npcRows=[...Array(npcCount)].map((_,i)=>`<div class="room-player"><span>🤖 NPC-${i+1}</span><b>AI ${onlineState.aiDifficulty}</b></div>`);
+  el("onlinePlayerList").innerHTML=(humanRows.length||npcRows.length)?[...humanRows,...npcRows].join(""):'<div class="small">参加者はいません。</div>';
+  const inRoom=!!onlineState.roomCode,total=onlineState.players.length+npcCount;
+  el("onlineNpcCount").disabled=inRoom&&!onlineState.isHost;el("onlineAiDifficulty").disabled=inRoom&&!onlineState.isHost;
+  el("onlineStartBtn").disabled=!(inRoom&&onlineState.isHost&&total>=2&&total<=8);el("leaveRoomBtn").disabled=!inRoom;el("sendChatBtn").disabled=!inRoom
+}
+function appendChat(name,text){const p=document.createElement("p");p.textContent=`${name}: ${text}`;el("chatLog").appendChild(p);el("chatLog").scrollTop=el("chatLog").scrollHeight;appendSoloChat(name,text,name==="SYSTEM"?"system":"")}
+function startOnlineHostMatch(payload){
+  const humanNames=(payload.players||onlineState.players).map(p=>p.name),npcCount=Number(payload.config?.npcCount)||0,npcNames=[...Array(npcCount)].map((_,i)=>`NPC-${i+1}`),names=[...humanNames,...npcNames];el("onlineOverlay").classList.add("hidden");
+  const character=el("characterSelect").value,side=el("portraitSide").value;
+  const resolvedStageKey=resolveSetupStageKey();
+  let custom=resolvedStageKey==="custom"?createCustomStage():clone(STAGES[resolvedStageKey]);
+  custom.playerCount=names.length;custom.enabledCards=[...enabledCardKeys];custom.enabledProfessions=[...enabledProfessionKeys];
+  state=makeState(resolvedStageKey,character,side,custom,names);state.onlineRoom=onlineState.roomCode;state.aiDifficulty=Math.max(1,Math.min(5,Number(payload.config?.aiDifficulty)||3));state.reachable=computeReachable();renderAll();
+  const me=human();el("revealIcon").textContent=me.profession==="saboteur"?"🧨":"⛏️";el("revealTitle").textContent=me.profession==="saboteur"?"お邪魔者":"坑夫陣営";el("revealText").innerHTML=`オンラインβ・ホスト進行です。あなたは <b>${PROFESSIONS[me.profession].name}</b>。`;showStageReveal()
+}
+
+function buildSetup(){
+  const sg=el("stageGrid");sg.innerHTML="";
+  const randomButton=document.createElement("button");
+  randomButton.className="stage-card"+(setupStage==="random"?" selected":"");
+  randomButton.type="button";
+  randomButton.innerHTML=`<b>🎲 ランダム</b><span>カスタムを除く既成ステージから、開始時に1つ抽選する。</span>`;
+  randomButton.addEventListener("click",()=>{setupStage="random";buildSetup()});
+  sg.appendChild(randomButton);
+  Object.entries(STAGES).forEach(([k,s])=>{const b=document.createElement("button");b.className="stage-card"+(k===setupStage?" selected":"");b.type="button";b.innerHTML=`<b>${s.icon} ${s.name}</b><span>${s.desc}</span>`;b.addEventListener("click",()=>{setupStage=k;buildSetup()});sg.appendChild(b)});
+  el("customOptions").classList.toggle("hidden",setupStage!=="custom");
+  fillSelect(el("characterSelect"),CHARACTERS,el("characterSelect").value||"violetMaid");
+  updateCampaignSummary();
+  if(el("customVolume"))el("customVolume").value=el("gameVolumeSelect")?.value||"normal";
+  if(el("weirdPackCheck"))el("weirdPackCheck").checked=weirdPackEnabled;
+  buildToggleLists()
+}
+function fillSelect(select,obj,value){
+  select.innerHTML="";
+  Object.entries(obj).forEach(([k,v])=>{const o=document.createElement("option");o.value=k;o.textContent=(v.icon?v.icon+" ":"")+v.name;select.appendChild(o)});
+  if(obj[value])select.value=value
+}
+function buildSettings(){
+  el("settingsSide").value=state?.portraitSide||el("portraitSide").value;
+  el("animationSpeedSelect").value=String(animationSpeedMultiplier);
+  fillSelect(el("settingsCharacter"),CHARACTERS,state?.characterKey||el("characterSelect").value);
+  const body=el("animationSettingsBody");body.innerHTML="";
+  Object.entries(CARD_DEFS).forEach(([k,d])=>{
+    const tr=document.createElement("tr");
+    const opts=Object.entries(OBJECT_LABELS).map(([ok,label])=>`<option value="${ok}" ${animSettings[k].object===ok?"selected":""}>${label}</option>`).join("");
+    tr.innerHTML=`<td>${d.name}</td><td>${d.tier}</td><td><input type="number" min="0" max="5000" step="50" value="${animSettings[k].duration}" data-duration="${k}"></td><td><select data-object="${k}">${opts}</select></td>`;
+    body.appendChild(tr)
+  })
+}
+function applySettings(){
+  animationSpeedMultiplier=Number(el("animationSpeedSelect").value)||1.25;
+  document.querySelectorAll("[data-duration]").forEach(i=>animSettings[i.dataset.duration].duration=Math.max(0,Math.min(5000,Number(i.value)||0)));
+  document.querySelectorAll("[data-object]").forEach(s=>animSettings[s.dataset.object].object=s.value);
+  if(state){state.portraitSide=el("settingsSide").value;state.characterKey=el("settingsCharacter").value;renderCharacter();renderHand()}
+}
+function fileToPortrait(file){
+  if(!file)return;
+  const reader=new FileReader();reader.onload=()=>{customPortraitData=reader.result;if(state)renderCharacter()};reader.readAsDataURL(file)
+}
+
+el("onlineBtn").addEventListener("click",openOnline);
+el("setupOnlineBtn").addEventListener("click",openOnline);
+el("rulebookBtn").addEventListener("click",openRulebook);
+el("closeRulebookBtn").addEventListener("click",()=>el("rulebookOverlay").classList.add("hidden"));
+el("rulebookCategory").addEventListener("change",buildRulebook);
+el("rulebookSearch").addEventListener("input",buildRulebook);
+el("closeOnlineBtn").addEventListener("click",()=>el("onlineOverlay").classList.add("hidden"));
+el("connectOnlineBtn").addEventListener("click",connectOnline);
+el("createRoomBtn").addEventListener("click",()=>onlineSocket?.emit("create_room",{name:el("onlinePlayerName").value}));
+el("joinRoomBtn").addEventListener("click",()=>onlineSocket?.emit("join_room",{code:el("joinRoomCode").value.trim().toUpperCase(),name:el("onlinePlayerName").value}));
+el("leaveRoomBtn").addEventListener("click",()=>onlineSocket?.emit("leave_room"));
+el("onlineStartBtn").addEventListener("click",()=>onlineSocket?.emit("start_match",{stageKey:setupStage}));
+el("onlineNpcCount").addEventListener("change",()=>{if(onlineState.roomCode&&onlineState.isHost)onlineSocket?.emit("set_room_config",{npcCount:clampInt("onlineNpcCount",0,6,0),aiDifficulty:clampInt("onlineAiDifficulty",1,5,3)});else renderOnlineRoom()});
+el("onlineAiDifficulty").addEventListener("change",()=>{if(onlineState.roomCode&&onlineState.isHost)onlineSocket?.emit("set_room_config",{npcCount:clampInt("onlineNpcCount",0,6,0),aiDifficulty:clampInt("onlineAiDifficulty",1,5,3)});else renderOnlineRoom()});
+el("sendChatBtn").addEventListener("click",()=>{const text=el("chatInput").value.trim();if(text){onlineSocket?.emit("send_chat",{text});el("chatInput").value=""}});
+el("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter")el("sendChatBtn").click()});
+el("sendSoloChatBtn").addEventListener("click",()=>{const text=el("soloChatInput").value.trim();if(!text)return;el("soloChatInput").value="";if(state?.onlineRoom&&onlineSocket)onlineSocket.emit("send_chat",{text});processSoloMessage(text)});
+el("soloChatInput").addEventListener("keydown",e=>{if(e.key==="Enter")el("sendSoloChatBtn").click()});
+el("moreChaosMode").addEventListener("change",()=>{const chaos=el("moreChaosMode").checked;el("customCols").max=chaos?30:15;el("customRows").max=chaos?30:15;el("customGoals").max=chaos?20:6;el("customHand").max=chaos?30:8;showToast(chaos?"モアカオスモード：設定崩壊を黙認します。":"通常の安全上限へ戻しました。")});
+el("weirdPackCheck").addEventListener("change",()=>{weirdPackEnabled=el("weirdPackCheck").checked;for(const k of WEIRD_CARD_KEYS){if(weirdPackEnabled)enabledCardKeys.add(k);else enabledCardKeys.delete(k)}buildToggleLists();showToast(weirdPackEnabled?"異常坑道カードパックを有効化しました。":"異常坑道カードを山札候補から外しました。")});
+
+el("startBtn").addEventListener("click",startGame);
+el("stageOkBtn").addEventListener("click",()=>{el("stageOverlay").classList.add("hidden");el("roleOverlay").classList.remove("hidden")});
+el("roleOkBtn").addEventListener("click",()=>{el("roleOverlay").classList.add("hidden");beginTurn()});
+el("newGameBtn").addEventListener("click",()=>el("setupOverlay").classList.remove("hidden"));
+el("againBtn").addEventListener("click",()=>{el("resultOverlay").classList.add("hidden");el("carryRewardsCheck").checked=true;buildSetup();el("setupOverlay").classList.remove("hidden")});
+el("freshGameBtn").addEventListener("click",()=>{resetCampaignData();el("resultOverlay").classList.add("hidden");el("carryRewardsCheck").checked=true;buildSetup();el("setupOverlay").classList.remove("hidden")});
+el("resetCampaignBtn").addEventListener("click",()=>{resetCampaignData();showToast("累計報酬をリセットしました。")});
+el("rotateBtn").addEventListener("click",rotateSelected);
+el("discardBtn").addEventListener("click",discardSelected);
+el("endTurnBtn").addEventListener("click",endHumanTurn);
+el("exchangeBtn").addEventListener("click",()=>state.exchangeMode?confirmExchange():toggleExchange());
+el("cancelExchangeBtn").addEventListener("click",cancelExchange);
+el("cancelTargetBtn").addEventListener("click",()=>el("targetOverlay").classList.add("hidden"));
+el("settingsBtn").addEventListener("click",()=>{buildSettings();el("settingsOverlay").classList.remove("hidden")});
+el("closeSettingsBtn").addEventListener("click",()=>{applySettings();el("settingsOverlay").classList.add("hidden")});
+el("resetAnimationBtn").addEventListener("click",()=>{animSettings=JSON.parse(JSON.stringify(DEFAULT_ANIM_SETTINGS));buildSettings()});
+el("customPortrait").addEventListener("change",e=>fileToPortrait(e.target.files[0]));
+el("settingsPortrait").addEventListener("change",e=>fileToPortrait(e.target.files[0]));
+document.addEventListener("keydown",e=>{
+  if((e.key==="r"||e.key==="R")&&state)rotateSelected();
+  if(e.key==="Escape"&&state?.exchangeMode)cancelExchange()
+});
+
+buildSetup();
+updateCampaignSummary();
+})();
+</script>
+</body>
+</html>
